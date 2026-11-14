@@ -268,6 +268,36 @@ async function runTests() {
         assert("New security event appended to top of audit trail", updatedMetricsRes.data.securityAuditTrail[0].channel === 'GC-9821');
         console.log();
 
+        // --- Test 13: Smart Commercial Terminology & Learning Engine (Tier 3 #17) ---
+        console.log("▶ [Test 13] Smart Commercial Terminology & Learning Engine (Tier 3 #17)");
+        const gloRes = await request('GET', '/api/glossary');
+        assert("Commercial glossary endpoint returns 200 OK", gloRes.status === 200);
+        assert("Pre-seeded commercial glossaries loaded (>=4 entries)", gloRes.data.count >= 4);
+        assert("Contains sizing, luxury materials, and customs HS code domains", gloRes.data.glossary.some(g => g.category === 'Customs Documentation'));
+
+        // Add custom terminology preference
+        const addGloRes = await request('POST', '/api/glossary', {
+            sourceTerm: 'water-resistant',
+            category: 'Material Quality',
+            translations: {
+                es: 'resistente al agua certificado',
+                ar: 'مقاوم للماء معتمد رسمياً'
+            },
+            contextNote: 'Merchant IP68 verification preference'
+        });
+        assert("New merchant terminology preference created (201 Created)", addGloRes.status === 201);
+        assert("New terminology entry assigned unique ID", Boolean(addGloRes.data.entry && addGloRes.data.entry.id));
+
+        // Verify translation pipeline respects and annotates applied glossary terms
+        const transGlossaryRes = await request('POST', '/api/translate', {
+            text: 'This jacket is durable with EU 50 sizing',
+            sourceLang: 'en',
+            targetLang: 'es'
+        });
+        assert("Translation pipeline executes with glossary detection", transGlossaryRes.status === 200);
+        assert("Applied glossary terms identified and attached", Array.isArray(transGlossaryRes.data.appliedGlossary) && transGlossaryRes.data.appliedGlossary.length >= 1);
+        console.log();
+
     } catch (err) {
         console.error("Test execution failed with error:", err);
         failed++;

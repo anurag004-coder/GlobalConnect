@@ -652,6 +652,64 @@
             letter-spacing: 0.5px;
         }
 
+        /* Smart Glossary Bar (Tier 3 #17) */
+        .glossary-chips-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(15, 23, 42, 0.7);
+            border-top: 1px solid var(--border);
+            overflow-x: auto;
+            font-size: 0.76rem;
+        }
+
+        .chips-label {
+            color: var(--color-dim);
+            font-weight: 700;
+            white-space: nowrap;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            letter-spacing: 0.5px;
+        }
+
+        .chip-btn {
+            background: rgba(59, 130, 246, 0.12);
+            border: 1px solid rgba(59, 130, 246, 0.3);
+            color: #93c5fd;
+            padding: 4px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            white-space: nowrap;
+            font-size: 0.74rem;
+            font-weight: 600;
+            transition: all 0.15s ease;
+        }
+
+        .chip-btn:hover {
+            background: rgba(59, 130, 246, 0.25);
+            border-color: #60a5fa;
+            color: white;
+        }
+
+        .chip-btn-manage {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            color: var(--color-muted);
+            padding: 4px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            white-space: nowrap;
+            font-size: 0.72rem;
+            margin-left: auto;
+            transition: all 0.15s ease;
+        }
+
+        .chip-btn-manage:hover {
+            background: rgba(255, 255, 255, 0.12);
+            color: white;
+        }
+
         /* Context Packet Modal (Tier 2 #12) */
         .packet-modal-backdrop {
             display: none;
@@ -933,6 +991,16 @@
                 </div>
 
                 <div class="chat-input-bar">
+                    <!-- Smart Commercial Terminology Chips (Tier 3 #17) -->
+                    <div class="glossary-chips-bar" id="glossaryChipsBar">
+                        <span class="chips-label">💡 Smart Glossaries:</span>
+                        <button type="button" class="chip-btn" onclick="insertGlossaryTerm('EU 50')">🏷️ EU 50</button>
+                        <button type="button" class="chip-btn" onclick="insertGlossaryTerm('full-grain leather')">✨ Full-Grain Leather</button>
+                        <button type="button" class="chip-btn" onclick="insertGlossaryTerm('HS 5007.20')">📦 HS 5007.20</button>
+                        <button type="button" class="chip-btn" onclick="insertGlossaryTerm('durable')">🛡️ Durable</button>
+                        <button type="button" class="chip-btn-manage" onclick="openGlossaryModal()">⚙️ Terminology Hub</button>
+                    </div>
+
                     <form onsubmit="sendAppMessage(event)">
                         <div class="input-form-inner">
                             <input type="text" id="appMsgInput" placeholder="Send translated message or test contact masking (e.g. phone/email)...">
@@ -1374,6 +1442,66 @@
                 <div class="packet-section-card" style="border: 1px solid rgba(59, 130, 246, 0.4); background: rgba(59, 130, 246, 0.05);">
                     <div class="packet-section-title" style="color: #93c5fd;"><span>⚡ 1-Click Fast Arbitration Decisions</span></div>
                     <div style="display: flex; flex-direction: column; gap: 8px;" id="pmActionButtons">
+                        <!-- Dynamically filled -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Smart Terminology Preferences Modal (Tier 3 #17) -->
+    <div class="packet-modal-backdrop" id="glossaryModal">
+        <div class="packet-modal-window" style="width: min(840px, 96%);">
+            <div class="packet-modal-header">
+                <div>
+                    <h3 style="font-size: 1.15rem; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+                        <span>📚 Smart Commercial Terminology Hub</span>
+                        <span class="badge-pill" style="background: rgba(59, 130, 246, 0.2); color: #93c5fd;">Custom Preferences</span>
+                    </h3>
+                    <p style="font-size: 0.78rem; color: var(--color-dim); margin-top: 2px;">Cross-border sizing conversions, certified material standards, and customs HS code mappings automatically preserved across languages.</p>
+                </div>
+                <button class="modal-close-btn" onclick="closeGlossaryModal()">&times;</button>
+            </div>
+            <div class="packet-modal-body">
+                <!-- Add new term form -->
+                <div class="packet-section-card" style="background: rgba(59, 130, 246, 0.05); border-color: rgba(59, 130, 246, 0.25);">
+                    <div class="packet-section-title">
+                        <span>➕ Add Merchant Terminology Preference</span>
+                    </div>
+                    <form onsubmit="handleCreateGlossaryTerm(event)" style="display: flex; flex-direction: column; gap: 10px;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <div>
+                                <label style="font-size: 0.72rem; color: var(--color-dim); font-weight: 700; text-transform: uppercase;">Source Term (English/Original)</label>
+                                <input type="text" id="gloSourceTerm" placeholder="e.g. water-resistant, EU 52, HS 6203.33" style="width: 100%; padding: 8px; border-radius: 6px; background: rgba(0,0,0,0.3); border: 1px solid var(--border); color: white; font-size: 0.84rem;" required>
+                            </div>
+                            <div>
+                                <label style="font-size: 0.72rem; color: var(--color-dim); font-weight: 700; text-transform: uppercase;">Domain Category</label>
+                                <select id="gloCategory" style="width: 100%; padding: 8px; border-radius: 6px; background: #16213e; border: 1px solid var(--border); color: white; font-size: 0.84rem;">
+                                    <option value="Product Sizing">Product Sizing (Apparel / Footwear)</option>
+                                    <option value="Material Quality">Material Quality (Leather / Textiles / Metals)</option>
+                                    <option value="Customs Documentation">Customs Documentation (HS Codes & Tariffs)</option>
+                                    <option value="Commercial Negotiation">Commercial Negotiation & Warranties</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                            <div>
+                                <label style="font-size: 0.72rem; color: var(--color-dim); font-weight: 700; text-transform: uppercase;">Preferred Translation (Target Language)</label>
+                                <input type="text" id="gloTargetTranslation" placeholder="e.g. resistente al agua garantizado" style="width: 100%; padding: 8px; border-radius: 6px; background: rgba(0,0,0,0.3); border: 1px solid var(--border); color: white; font-size: 0.84rem;" required>
+                            </div>
+                            <div>
+                                <label style="font-size: 0.72rem; color: var(--color-dim); font-weight: 700; text-transform: uppercase;">Context / Enforcement Rule</label>
+                                <input type="text" id="gloContextNote" placeholder="e.g. Enforce IP68 rating across buyer queries" style="width: 100%; padding: 8px; border-radius: 6px; background: rgba(0,0,0,0.3); border: 1px solid var(--border); color: white; font-size: 0.84rem;">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-action" style="align-self: flex-start; background: var(--color-accent); color: white; padding: 7px 16px; font-size: 0.82rem;">Save Terminology Preference</button>
+                    </form>
+                </div>
+
+                <!-- Active glossary list -->
+                <div>
+                    <div style="font-size: 0.76rem; font-weight: 700; text-transform: uppercase; color: var(--color-dim); margin-bottom: 8px;">Active Terminology Mappings (<span id="gloActiveCount">0</span>)</div>
+                    <div id="glossaryListContainer" style="display: flex; flex-direction: column; gap: 8px; max-height: 240px; overflow-y: auto;">
                         <!-- Dynamically filled -->
                     </div>
                 </div>
@@ -2205,6 +2333,95 @@
                 }
             } catch (err) {
                 console.warn('Failed to fetch marketplace metrics:', err);
+            }
+        }
+
+        function insertGlossaryTerm(term) {
+            const input = document.getElementById('appMsgInput');
+            if (!input) return;
+            const current = input.value.trim();
+            input.value = current ? `${current} ${term}` : term;
+            input.focus();
+        }
+
+        async function openGlossaryModal() {
+            const modal = document.getElementById('glossaryModal');
+            if (modal) {
+                modal.classList.add('active');
+                await fetchGlossary();
+            }
+        }
+
+        function closeGlossaryModal() {
+            const modal = document.getElementById('glossaryModal');
+            if (modal) modal.classList.remove('active');
+        }
+
+        async function fetchGlossary() {
+            try {
+                const res = await fetch('/api/glossary', { credentials: 'same-origin' });
+                if (!res.ok) return;
+                const data = await res.json();
+                const container = document.getElementById('glossaryListContainer');
+                const countEl = document.getElementById('gloActiveCount');
+                if (countEl) countEl.textContent = data.count || 0;
+
+                if (container && Array.isArray(data.glossary)) {
+                    container.innerHTML = data.glossary.map(item => `
+                        <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--border); border-radius: 8px; padding: 12px; display: flex; flex-direction: column; gap: 4px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <strong style="color: #60a5fa; font-size: 0.88rem;">${item.sourceTerm}</strong>
+                                    <span class="badge-pill" style="background: rgba(255,255,255,0.06); color: var(--color-dim); font-size: 0.68rem;">${item.category}</span>
+                                </div>
+                                <span style="font-size: 0.72rem; color: #4ade80; font-family: var(--font-mono);">${item.usageCount || 0} hits</span>
+                            </div>
+                            <div style="font-size: 0.78rem; color: #e2e8f0; margin-top: 2px;">
+                                <strong>Preferred:</strong> <span style="color: #fde047;">"${item.translations.es || item.translations.ar || item.translations.en}"</span>
+                            </div>
+                            <div style="font-size: 0.72rem; color: var(--color-dim);">${item.contextNote || ''}</div>
+                        </div>
+                    `).join('');
+                }
+            } catch (err) {
+                console.warn('Failed to fetch glossary:', err);
+            }
+        }
+
+        async function handleCreateGlossaryTerm(event) {
+            event.preventDefault();
+            const sourceTerm = document.getElementById('gloSourceTerm')?.value.trim();
+            const category = document.getElementById('gloCategory')?.value;
+            const targetTranslation = document.getElementById('gloTargetTranslation')?.value.trim();
+            const contextNote = document.getElementById('gloContextNote')?.value.trim();
+
+            if (!sourceTerm || !targetTranslation) return;
+
+            try {
+                const res = await fetch('/api/glossary', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({
+                        sourceTerm,
+                        category,
+                        translations: {
+                            es: targetTranslation,
+                            ar: targetTranslation,
+                            en: sourceTerm
+                        },
+                        contextNote
+                    })
+                });
+
+                if (res.ok) {
+                    document.getElementById('gloSourceTerm').value = '';
+                    document.getElementById('gloTargetTranslation').value = '';
+                    document.getElementById('gloContextNote').value = '';
+                    await fetchGlossary();
+                }
+            } catch (err) {
+                console.warn('Error saving glossary term:', err);
             }
         }
 

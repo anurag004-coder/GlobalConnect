@@ -411,7 +411,65 @@ const db = {
                 severity: 'LOW'
             }
         ]
-    }
+    },
+    glossary: [
+        {
+            id: 'glo_1',
+            category: 'Product Sizing',
+            sourceTerm: 'EU 50',
+            translations: {
+                en: 'EU 50 (US 40 / Large)',
+                ar: 'المقاس الأوروبي 50 (يعادل US 40 / L)',
+                es: 'Talla europea 50 (equivale a US 40 / Grande)',
+                ja: 'EU 50（US 40 / 日本サイズ L 相当）',
+                de: 'EU 50 (Größe L / US 40)'
+            },
+            contextNote: 'Standardized cross-border apparel garment sizing conversion',
+            usageCount: 42
+        },
+        {
+            id: 'glo_2',
+            category: 'Material Quality',
+            sourceTerm: 'full-grain leather',
+            translations: {
+                en: 'certified full-grain calfskin',
+                ar: 'جلد عجل طبيعي كامل الحبيبات عالي الجودة',
+                es: 'cuero plena flor vacuno certificado',
+                ja: '認定フルグレインカーフレザー（最高級本革）',
+                de: 'zertifiziertes Vollnarben-Kalbsleder'
+            },
+            contextNote: 'Prevents material specification disputes upon delivery receipt',
+            usageCount: 88
+        },
+        {
+            id: 'glo_3',
+            category: 'Customs Documentation',
+            sourceTerm: 'HS 5007.20',
+            translations: {
+                en: 'Harmonized Tariff Code HS 5007.20 (Woven Silk Fabric)',
+                ar: 'رمز النظام المنسق الجمركي HS 5007.20 (أقمشة حرير منسوجة)',
+                es: 'Código arancelario armonizado HS 5007.20 (Tejidos de seda)',
+                ja: '国際HS関税分類コード 5007.20（絹織物）',
+                de: 'Zolltarifcode HS 5007.20 (Gewebe aus Seide)'
+            },
+            contextNote: 'Eliminates bonded terminal customs clearance holds at Heathrow & Royal Mail',
+            usageCount: 19
+        },
+        {
+            id: 'glo_4',
+            category: 'Commercial Negotiation',
+            sourceTerm: 'durable',
+            translations: {
+                en: 'heavy-duty commercial durability guaranteed',
+                ar: 'متين فائق التحمل مع ضمان تجاري معتمد',
+                es: 'resistente de alta durabilidad garantizada',
+                ja: '優れた高耐久性（商用品質保証付き）',
+                de: 'äußerst strapazierfähig und langlebig'
+            },
+            contextNote: 'Merchant preference calibration (e.g. durable -> resistente in Spanish)',
+            usageCount: 65
+        }
+    ]
 };
 
 // ==========================================
@@ -641,6 +699,22 @@ async function translateText(text, sourceLang = 'en', targetLang = 'ar', cultura
 
     const latency = Math.max(14.5, Date.now() - startTime);
 
+    const appliedGlossary = [];
+    if (db && Array.isArray(db.glossary)) {
+        for (const entry of db.glossary) {
+            const regex = new RegExp(`\\b${entry.sourceTerm.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+            if (regex.test(text)) {
+                entry.usageCount = (entry.usageCount || 0) + 1;
+                const preferred = entry.translations[targetLang] || entry.translations['en'];
+                appliedGlossary.push({
+                    term: entry.sourceTerm,
+                    category: entry.category,
+                    preferred
+                });
+            }
+        }
+    }
+
     if (db && db.metrics) {
         db.metrics.translationsCount++;
         db.metrics.totalLatencySum += latency;
@@ -654,6 +728,7 @@ async function translateText(text, sourceLang = 'en', targetLang = 'ar', cultura
         confidenceScore,
         inferenceLatencyMs: latency,
         culturalAdaptation: culturalNote,
+        appliedGlossary,
         engine,
         quotaProtected: true
     };
@@ -822,6 +897,7 @@ const server = http.createServer(async (req, res) => {
             pathname === '/api/translate' ||
             pathname === '/api/moderate' ||
             pathname === '/api/analytics/metrics' ||
+            pathname.startsWith('/api/glossary') ||
             pathname.startsWith('/api/escrow/') ||
             pathname === '/api/escrow/action' ||
             pathname.startsWith('/api/dispute/') ||
@@ -1185,7 +1261,49 @@ const server = http.createServer(async (req, res) => {
             return sendJson(res, 200, metrics);
         }
 
-        // --- 9. Signed HMAC Webhook Receiver ---
+        // --- 9. Smart Commercial Terminology & Learning Engine ---
+        // Tier 3 #17 (User Terminology Preferences & Cross-Border Glossaries)
+        if (req.method === 'GET' && pathname === '/api/glossary') {
+            return sendJson(res, 200, {
+                success: true,
+                count: (db.glossary || []).length,
+                glossary: db.glossary || []
+            });
+        }
+
+        if (req.method === 'POST' && pathname === '/api/glossary') {
+            const body = await parseJsonBody(req);
+            const sourceTerm = String(body.sourceTerm || '').trim();
+            const category = String(body.category || 'General Commercial').trim();
+            const contextNote = String(body.contextNote || 'Custom merchant terminology preference').trim();
+            const translations = body.translations || {};
+
+            if (!sourceTerm) {
+                return sendJson(res, 400, { error: 'sourceTerm is required' });
+            }
+
+            const newEntry = {
+                id: `glo_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+                category,
+                sourceTerm,
+                translations: {
+                    en: translations.en || sourceTerm,
+                    ar: translations.ar || `[مصطلح تجاري]: ${sourceTerm}`,
+                    es: translations.es || `[Término]: ${sourceTerm}`,
+                    ja: translations.ja || `[用語]: ${sourceTerm}`,
+                    de: translations.de || `[Fachbegriff]: ${sourceTerm}`,
+                    ...translations
+                },
+                contextNote,
+                usageCount: 1
+            };
+
+            if (!db.glossary) db.glossary = [];
+            db.glossary.unshift(newEntry);
+            return sendJson(res, 201, { success: true, entry: newEntry });
+        }
+
+        // --- 10. Signed HMAC Webhook Receiver ---
         // Verifies authenticity of inbound Nexconn Chat SDK Webhooks
         if (req.method === 'POST' && pathname === '/api/webhooks/nexconn') {
             const signature = req.headers['x-nexconn-signature'];
