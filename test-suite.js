@@ -205,8 +205,23 @@ async function runTests() {
         assert("Real-time dual translation attached", sendMsgRes.data.message.translation !== null);
         console.log();
 
-        // --- Test 10: HMAC Webhook Signature Verification ---
-        console.log("▶ [Test 10] HMAC-SHA256 Webhook Verification");
+        // --- Test 10: AI Dispute Summary Context Packet ---
+        console.log("▶ [Test 10] AI Dispute Summary Context Packet (Tier 2 #12)");
+        const packet9821 = await request('GET', '/api/dispute/packet/GC-9821');
+        assert("Briefing packet retrieved for GC-9821 (200 OK)", packet9821.status === 200);
+        assert("Case ID matches CASE-9821", packet9821.data.caseId === 'CASE-9821');
+        assert("Locked escrow amount is $249.00 USD", packet9821.data.escrowLockedAmount === 249.00);
+        assert("Triangulated evidence comparison populated", Boolean(packet9821.data.evidenceComparison.buyerClaim && packet9821.data.evidenceComparison.sellerListingVerified));
+        assert("Bilingual chronological audit trail present", Array.isArray(packet9821.data.bilingualTimeline) && packet9821.data.bilingualTimeline.length >= 4);
+        assert("3 fast arbitration decisions generated", Array.isArray(packet9821.data.aiRecommendations) && packet9821.data.aiRecommendations.length === 3);
+        assert("Triage time savings calculated (~12 mins)", packet9821.data.timeSavedMinutes >= 10);
+
+        const packet6102 = await request('GET', '/api/dispute/packet/GC-6102');
+        assert("Briefing packet retrieved for Kyoto Kimono CASE-6102", packet6102.status === 200 && packet6102.data.caseId === 'CASE-6102');
+        console.log();
+
+        // --- Test 11: HMAC Webhook Signature Verification ---
+        console.log("▶ [Test 11] HMAC-SHA256 Webhook Verification");
         const webhookPayload = JSON.stringify({
             event: 'message.sent',
             channelId: 'order_9821',

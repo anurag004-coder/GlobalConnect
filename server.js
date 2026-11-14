@@ -767,7 +767,7 @@ const server = http.createServer(async (req, res) => {
             pathname === '/api/moderate' ||
             pathname.startsWith('/api/escrow/') ||
             pathname === '/api/escrow/action' ||
-            pathname === '/api/dispute/mediate' ||
+            pathname.startsWith('/api/dispute/') ||
             (pathname.startsWith('/api/channels/') && req.method === 'POST');
         if (requiresWorkspaceSession && !getSessionUser(req)) {
             return sendJson(res, 401, { error: 'Sign in to use workspace features.' });
@@ -976,31 +976,96 @@ const server = http.createServer(async (req, res) => {
             });
         }
 
-        // --- 6. AI Dispute Mediator Analysis ---
+        // --- 7. AI Dispute Mediator & Context Summary Packet ---
+        // Tier 2 #10 (AI Mediator) & #12 (Pre-formatted Agent Context Packet)
+        function generateDisputePacket(orderId, customComplaint) {
+            const order = db.orders[orderId] || db.orders['GC-9821'];
+
+            if (orderId === 'GC-6102') {
+                return {
+                    caseId: 'CASE-6102',
+                    orderId: 'GC-6102',
+                    itemTitle: order.title,
+                    escrowLockedAmount: order.amount,
+                    currency: order.currency,
+                    status: order.dispute?.status || 'AI_MEDIATION_ACTIVE',
+                    slaHoursRemaining: 42.2,
+                    parties: {
+                        buyer: { name: order.buyerName, lang: 'Japanese (ja)', location: 'Kyoto, Japan' },
+                        seller: { name: order.sellerName, lang: 'English (en)', location: 'London, UK' }
+                    },
+                    disputeCategory: 'Customs Duty Classification & Invoice Discrepancy',
+                    rootCauseSummary: customComplaint || 'Export documentation omitted HS Code 5007.20 (Woven Silk Fabric), resulting in an unexpected tariff assessment hold at Heathrow customs terminal.',
+                    bilingualTimeline: [
+                        { time: 'Oct 22 08:00', event: 'Order funded into Escrow ($420.00 USD) and held in smart ledger' },
+                        { time: 'Oct 22 08:10', event: 'Buyer Kenji Sato requested export invoice reissuance in Japanese' },
+                        { time: 'Oct 22 09:00', event: 'Carrier Japan Post / Royal Mail placed parcel on customs inspection hold' },
+                        { time: 'Oct 22 09:40', event: 'Sarah Chen (Bilingual Agent) uploaded stamped bilingual declaration form' }
+                    ],
+                    evidenceComparison: {
+                        buyerClaim: 'Customer requested official seller certificate to avoid double taxation with local customs.',
+                        sellerListingVerified: 'Seller indicated international shipping is DDU (Delivered Duty Unpaid); invoice attached.',
+                        shippingStatus: 'Tracking #EMS-88219 confirms parcel held safely in bonded customs facility.'
+                    },
+                    aiRecommendations: [
+                        { id: 1, action: 'SETTLE_PARTIAL', title: '50% Duty Courtesy Credit', detail: 'Approve immediate $42.00 USD (10%) split concession from escrow to release parcel.' },
+                        { id: 2, action: 'SETTLE_REFUND', title: 'Recall Shipment & Full Refund', detail: 'Recall shipment to Kyoto; return $420.00 USD full escrow once return scan verifies.' },
+                        { id: 3, action: 'SETTLE_AGENT', title: 'Assign Bilingual Customs Officer', detail: 'Sarah Chen handles direct telephonic clearing with Heathrow port authority.' }
+                    ],
+                    suggestedResolution: 'Approve $42.00 USD duty split concession to finalize release without transit return costs.',
+                    timeSavedMinutes: 14.2
+                };
+            }
+
+            // Default / GC-9821
+            return {
+                caseId: 'CASE-9821',
+                orderId: 'GC-9821',
+                itemTitle: order.title,
+                escrowLockedAmount: order.amount,
+                currency: order.currency,
+                status: order.dispute?.status || 'AI_MEDIATION_ACTIVE',
+                slaHoursRemaining: 71.8,
+                parties: {
+                    buyer: { name: order.buyerName, lang: 'Arabic (ar)', location: 'Dubai, UAE' },
+                    seller: { name: order.sellerName, lang: 'English / Italian (en/it)', location: 'Milan, Italy' }
+                },
+                disputeCategory: 'Material Specification & Texture Query',
+                rootCauseSummary: customComplaint || 'Buyer questioned whether Tuscan calfskin pebble grain conforms to European EU 50 full-grain spec upon DHL Express delivery receipt.',
+                bilingualTimeline: [
+                    { time: 'Oct 24 14:30', event: 'Order funded in escrow ($249.00 USD) and held in smart ledger' },
+                    { time: 'Oct 24 14:32', event: 'Buyer queried sizing & leather authenticity in Arabic via dual-view chat' },
+                    { time: 'Oct 24 14:34', event: 'Seller re-confirmed Italian EU 50 sizing and certified vegetable-tanned grain' },
+                    { time: 'Oct 25 09:15', event: 'DHL Express Milan hub dispatched package #99482189' },
+                    { time: 'Oct 25 16:02', event: 'Buyer flagged grain texture variance upon delivery receipt' }
+                ],
+                evidenceComparison: {
+                    buyerClaim: 'Customer anticipated smooth nappa finish; noted textured vegetable-tanned surface upon unboxing.',
+                    sellerListingVerified: 'Listing declares handcrafted full-grain Tuscan calfskin with cert tags and natural grain markings.',
+                    shippingStatus: 'Delivered in pristine original box via DHL Express tracking #99482189.'
+                },
+                aiRecommendations: [
+                    { id: 1, action: 'SETTLE_PARTIAL', title: '20% Courtesy Concession', detail: 'Credit $49.80 USD to buyer immediately. Buyer keeps garment; seller receives $199.20 USD.' },
+                    { id: 2, action: 'SETTLE_REFUND', title: 'Full Refund with Return Label', detail: 'Generate pre-paid DHL label to Milan. Full $249.00 USD refunded upon initial scan.' },
+                    { id: 3, action: 'SETTLE_AGENT', title: 'Certified Human Arbitration', detail: 'Assign bilingual arbitration officer Sarah Chen for formal material inspection review.' }
+                ],
+                suggestedResolution: 'Propose 20% courtesy concession ($49.80 USD) or pre-paid DHL return label to preserve seller rating.',
+                timeSavedMinutes: 12.0
+            };
+        }
+
+        if (req.method === 'GET' && pathname.startsWith('/api/dispute/packet/')) {
+            const parts = pathname.split('/');
+            const orderId = parts[4] || 'GC-9821';
+            const packet = generateDisputePacket(orderId);
+            return sendJson(res, 200, packet);
+        }
+
         if (req.method === 'POST' && pathname === '/api/dispute/mediate') {
             const body = await parseJsonBody(req);
             const { orderId = 'GC-9821', complaint } = body;
-            const order = db.orders[orderId];
-
-            const analysis = {
-                orderId: orderId,
-                caseId: 'CASE-2026-X88',
-                generatedAt: new Date().toISOString(),
-                mediationDeadlineHoursRemaining: 72,
-                evidenceSummary: {
-                    buyerClaim: complaint || 'Item material differs from expected grain specifications',
-                    sellerListingVerified: 'Listing declares handcrafted full-grain calfskin with cert tags',
-                    shippingStatus: 'Delivered via DHL Express tracking #99482189'
-                },
-                suggestedResolution: 'Propose 20% courtesy concession or verified return shipping label',
-                bilingualTimeline: [
-                    { time: '14:30', event: 'Order funded in escrow ($249.00)' },
-                    { time: '14:34', event: 'Seller re-confirmed Italian EU 50 sizing via dual-view chat' },
-                    { time: '16:02', event: 'Buyer flagged specification query upon arrival' }
-                ]
-            };
-
-            return sendJson(res, 200, analysis);
+            const packet = generateDisputePacket(orderId, complaint);
+            return sendJson(res, 200, packet);
         }
 
         // --- 7. Signed HMAC Webhook Receiver ---
