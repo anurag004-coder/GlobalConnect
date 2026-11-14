@@ -6,11 +6,20 @@ node_modules/
 *.log
 npm-debug.log*
 
-# OS Files
+# OS & IDE Files
 .DS_Store
 Thumbs.db
+.vscode/
+.idea/
+*.swp
 
-# Environment variables
+# Environment variables & Sensitive Credentials (Strict Protection)
 .env
-.env.local
+.env.*
+!.env.example
+*.pem
+*.key
+*.cert
+credentials.json
+token.json
 
