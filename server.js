@@ -182,8 +182,12 @@ const db = {
         'GC-9821': {
             id: 'GC-9821',
             title: 'Vintage Italian Leather Jacket',
+            sku: 'GC-LEATHER-50 • Size EU 50',
+            icon: '🧥',
             buyerId: 'buyer_dubai_12',
+            buyerName: 'Tariq Al-Mansoor',
             sellerId: 'seller_milan_88',
+            sellerName: 'Marco Rossi',
             amount: 249.00,
             currency: 'USD',
             status: 'ESCROW_FUNDED',
@@ -198,14 +202,181 @@ const db = {
                 { step: 'RELEASED', completed: false, timestamp: null }
             ],
             dispute: null
+        },
+        'GC-7740': {
+            id: 'GC-7740',
+            title: 'Swiss Chrono Watch (42mm)',
+            sku: 'SWISS-CHRONO-42 • Sapphire Crystal',
+            icon: '⌚',
+            buyerId: 'buyer_munich_55',
+            buyerName: 'Klaus Weber',
+            sellerId: 'seller_milan_88',
+            sellerName: 'Marco Rossi',
+            amount: 1850.00,
+            currency: 'USD',
+            status: 'IN_TRANSIT',
+            origin: 'Geneva, Switzerland',
+            destination: 'Munich, Germany',
+            carrier: 'FedEx Priority',
+            createdAt: '2026-10-25T11:00:00Z',
+            escrowMilestones: [
+                { step: 'FUNDED', completed: true, timestamp: '2026-10-25T11:00:00Z' },
+                { step: 'COURIER_DISPATCHED', completed: true, timestamp: '2026-10-25T13:30:00Z' },
+                { step: 'INSPECTION_PENDING', completed: false, timestamp: null },
+                { step: 'RELEASED', completed: false, timestamp: null }
+            ],
+            dispute: null
+        },
+        'GC-6102': {
+            id: 'GC-6102',
+            title: 'Kyoto Silk Kimono Fabric',
+            sku: 'KYOTO-SILK-BOLT-12 • Gold Thread',
+            icon: '👘',
+            buyerId: 'buyer_kyoto_09',
+            buyerName: 'Kenji Sato',
+            sellerId: 'seller_london_33',
+            sellerName: 'Emma Watson',
+            amount: 420.00,
+            currency: 'USD',
+            status: 'ESCROW_FROZEN',
+            origin: 'Kyoto, Japan',
+            destination: 'London, UK',
+            carrier: 'Japan Post EMS',
+            createdAt: '2026-10-22T08:00:00Z',
+            escrowMilestones: [
+                { step: 'FUNDED', completed: true, timestamp: '2026-10-22T08:00:00Z' },
+                { step: 'COURIER_DISPATCHED', completed: true, timestamp: '2026-10-22T10:00:00Z' },
+                { step: 'INSPECTION_PENDING', completed: false, timestamp: null },
+                { step: 'RELEASED', completed: false, timestamp: null }
+            ],
+            dispute: {
+                openedAt: '2026-10-22T09:00:00Z',
+                deadline72Hr: '2026-10-25T09:00:00Z',
+                status: 'AI_MEDIATION_ACTIVE',
+                settlementProposals: [
+                    { id: 1, type: 'INVOICE_CLEARANCE', summary: 'Seller provides corrected export customs declaration invoice' },
+                    { id: 2, type: 'DUTY_CREDIT', summary: 'Split import duties 50/50 via immediate escrow refund credit' },
+                    { id: 3, type: 'HUMAN_ARBITRATION', summary: 'Sarah Chen assigned for bilingual courier investigation' }
+                ]
+            }
         }
     },
     users: {
         'buyer_dubai_12': { id: 'buyer_dubai_12', name: 'Tariq Al-Mansoor', role: 'buyer', lang: 'ar', trustScore: 98 },
+        'buyer_munich_55': { id: 'buyer_munich_55', name: 'Klaus Weber', role: 'buyer', lang: 'de', trustScore: 97 },
+        'buyer_kyoto_09': { id: 'buyer_kyoto_09', name: 'Kenji Sato', role: 'buyer', lang: 'ja', trustScore: 99 },
         'seller_milan_88': { id: 'seller_milan_88', name: 'Marco Rossi', role: 'seller', lang: 'en', trustScore: 99 },
+        'seller_london_33': { id: 'seller_london_33', name: 'Emma Watson', role: 'seller', lang: 'en', trustScore: 98 },
         'agent_support_01': { id: 'agent_support_01', name: 'Sarah Chen', role: 'agent', lang: 'en', trustScore: 100 }
     },
-    messageHistory: []
+    channelMessages: {
+        'GC-9821': [
+            {
+                id: 'msg_9821_1',
+                orderId: 'GC-9821',
+                sender: { id: 'buyer_dubai_12', name: 'Tariq Al-Mansoor', role: 'buyer' },
+                originalText: 'مرحباً، هل مقاس الجاكيت مناسب للمقاسات الأوروبية القياسية؟ وهل الجلد طبيعي أصلي؟',
+                sourceLang: 'ar',
+                targetLang: 'en',
+                translation: {
+                    translatedText: 'Hello, is the jacket size true to standard European sizing? And is the leather 100% genuine calfskin?',
+                    confidenceScore: 0.992,
+                    culturalAdaptation: 'Polite formal inquiry. Product specs automatically mapped.'
+                },
+                timestamp: '2026-10-24T14:32:00Z'
+            },
+            {
+                id: 'deal_9821_1',
+                orderId: 'GC-9821',
+                type: 'deal_card',
+                sender: { id: 'system', name: 'GlobalConnect Escrow', role: 'system' },
+                deal: {
+                    title: 'Proposed Purchase Specification Agreement',
+                    status: 'BINDING_OFFER',
+                    terms: [
+                        'Item: Vintage Italian Leather Jacket (EU 50 / L)',
+                        'Agreed Amount: $249.00 USD (Includes DHL International Courier)',
+                        'Inspection Guarantee: 48-hour return window for authenticity verification'
+                    ]
+                },
+                timestamp: '2026-10-24T14:33:00Z'
+            },
+            {
+                id: 'msg_9821_2',
+                orderId: 'GC-9821',
+                sender: { id: 'seller_milan_88', name: 'Marco Rossi', role: 'seller' },
+                originalText: 'Yes, exactly true to European EU 50 sizing. It is handcrafted Tuscan full-grain leather with certified authenticity tags.',
+                sourceLang: 'en',
+                targetLang: 'ar',
+                translation: {
+                    translatedText: 'نعم، المقاس مطابق تماماً للمقاس الأوروبي EU 50. وهو مصنوع يدوياً من جلد توسكاني طبيعي أصلي عالي الجودة مع بطاقات المصادقة المعتمدة.',
+                    confidenceScore: 0.988,
+                    culturalAdaptation: 'Merchant specification clarification verified.'
+                },
+                timestamp: '2026-10-24T14:34:00Z'
+            }
+        ],
+        'GC-7740': [
+            {
+                id: 'msg_7740_1',
+                orderId: 'GC-7740',
+                sender: { id: 'buyer_munich_55', name: 'Klaus Weber', role: 'buyer' },
+                originalText: 'Guten Tag, liegt dem Chronographen das originale Garantiezertifikat und die Originalverpackung bei?',
+                sourceLang: 'de',
+                targetLang: 'en',
+                translation: {
+                    translatedText: 'Good day, does the chronograph come with the original warranty certificate and box?',
+                    confidenceScore: 0.994,
+                    culturalAdaptation: 'Formal German commercial inquiry.'
+                },
+                timestamp: '2026-10-25T11:15:00Z'
+            },
+            {
+                id: 'msg_7740_2',
+                orderId: 'GC-7740',
+                sender: { id: 'seller_milan_88', name: 'Marco Rossi', role: 'seller' },
+                originalText: 'Yes, complete set with original 2024 stamped papers and manufacturer presentation case.',
+                sourceLang: 'en',
+                targetLang: 'de',
+                translation: {
+                    translatedText: 'Ja, vollständiges Set mit Originalpapieren von 2024 und Hersteller-Präsentationsbox.',
+                    confidenceScore: 0.991,
+                    culturalAdaptation: 'Commercial documentation assurance.'
+                },
+                timestamp: '2026-10-25T11:22:00Z'
+            }
+        ],
+        'GC-6102': [
+            {
+                id: 'msg_6102_1',
+                orderId: 'GC-6102',
+                sender: { id: 'buyer_kyoto_09', name: 'Kenji Sato', role: 'buyer' },
+                originalText: '税関の書類手続きについて、インボイスの再発行をお願いできますでしょうか？',
+                sourceLang: 'ja',
+                targetLang: 'en',
+                translation: {
+                    translatedText: 'Regarding the customs documentation procedures, could you please reissue the commercial invoice?',
+                    confidenceScore: 0.989,
+                    culturalAdaptation: 'Japanese business Keigo (polite request).'
+                },
+                timestamp: '2026-10-22T08:10:00Z'
+            },
+            {
+                id: 'msg_6102_2',
+                orderId: 'GC-6102',
+                sender: { id: 'agent_support_01', name: 'Sarah Chen (Bilingual Agent)', role: 'agent' },
+                originalText: 'I have uploaded the stamped bilingual commercial invoice. Escrow funds remain secured during customs clearance.',
+                sourceLang: 'en',
+                targetLang: 'ja',
+                translation: {
+                    translatedText: '捺印済みのバイリンガル商業送り状をアップロードいたしました。通関中もエスクロー資金は安全に保護されております。',
+                    confidenceScore: 0.995,
+                    culturalAdaptation: 'Certified dispute mediation assurance.'
+                },
+                timestamp: '2026-10-22T09:40:00Z'
+            }
+        ]
+    }
 };
 
 // ==========================================
@@ -304,6 +475,140 @@ function parseJsonBody(req) {
         });
         req.on('error', reject);
     });
+}
+
+// ==========================================
+// Real-Time SSE Channels & Message Broadcast
+// Tier 1 #2 (Order Channels) & #4 (Real-Time 1-to-1)
+// ==========================================
+const sseClientsByChannel = new Map(); // orderId -> Set of HTTP responses
+
+function broadcastToChannel(orderId, eventType, data) {
+    const clients = sseClientsByChannel.get(orderId);
+    if (!clients || clients.size === 0) return;
+    const msg = `event: ${eventType}\ndata: ${JSON.stringify(data)}\n\n`;
+    for (const clientRes of clients) {
+        try {
+            clientRes.write(msg);
+        } catch (err) {
+            clients.delete(clientRes);
+        }
+    }
+}
+
+// ==========================================
+// Centralized Moderation Scanner
+// Tier 1 #5 (Contact Masking Guard)
+// ==========================================
+function moderateText(text) {
+    const phonePattern = /(?:(?:\+?1\s*(?:[.-]\s*)?)?(?:\(\s*([2-9]1[02-9]|[2-9][02-8]1|[2-9][02-8][02-9])\s*\)|([2-9]1[02-9]|[2-9][02-8]1|[2-9][02-8][02-9]))\s*(?:[.-]\s*)?)?([2-9]1[02-9]|[2-9][02-9]1|[2-9][02-9]{2})\s*(?:[.-]\s*)?([0-9]{4})(?:\s*(?:#|x\.?|ext\.?|extension)\s*(\d+))?/gi;
+    const emailPattern = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/gi;
+    const platformKeywords = /\b(whatsapp|telegram|wechat|paypal|venmo|cashapp|zelle|wire transfer)\b/gi;
+
+    let maskedText = text;
+    const violations = [];
+
+    if (phonePattern.test(maskedText)) {
+        violations.push('PHONE_NUMBER_DETECTED');
+        maskedText = maskedText.replace(phonePattern, '[REDACTED PHONE]');
+    }
+    if (emailPattern.test(maskedText)) {
+        violations.push('EMAIL_DETECTED');
+        maskedText = maskedText.replace(emailPattern, '[REDACTED EMAIL]');
+    }
+    if (platformKeywords.test(maskedText)) {
+        violations.push('EXTERNAL_PAYMENT_PLATFORM');
+        maskedText = maskedText.replace(platformKeywords, '[OFF-PLATFORM CHANNEL REDACTED]');
+    }
+
+    const isClean = violations.length === 0;
+    return {
+        originalText: text,
+        sanitizedText: maskedText,
+        isClean,
+        isMasked: !isClean,
+        violationsBlocked: violations,
+        policyComplianceScore: isClean ? 100 : 35
+    };
+}
+
+// ==========================================
+// Centralized Translation Pipeline
+// Tier 1 #8 & Tier 3 #15 (Cultural AI)
+// ==========================================
+async function translateText(text, sourceLang = 'en', targetLang = 'ar', culturalContext = true) {
+    const normalized = text.toLowerCase().trim();
+    const cacheKey = `${sourceLang}:${targetLang}:${culturalContext}:${normalized}`;
+
+    if (translationCache.has(cacheKey)) {
+        return {
+            ...translationCache.get(cacheKey),
+            inferenceLatencyMs: 3.2,
+            cached: true
+        };
+    }
+
+    const startTime = Date.now();
+    let translated = null;
+    let culturalNote = null;
+    let confidenceScore = 0.984;
+    let engine = 'curated-corpus';
+
+    if (translationCorpus[normalized] && translationCorpus[normalized][targetLang]) {
+        translated = translationCorpus[normalized][targetLang];
+        culturalNote = culturalContext ? translationCorpus[normalized].culturalNote : null;
+        engine = 'curated-corpus';
+    } else {
+        const geminiRes = await translateWithGemini(text, sourceLang, targetLang, culturalContext);
+        if (geminiRes) {
+            translated = geminiRes.translatedText;
+            culturalNote = culturalContext ? geminiRes.culturalAdaptation : null;
+            confidenceScore = geminiRes.confidenceScore;
+            engine = 'google-gemini-1.5-flash';
+        } else {
+            if (targetLang === 'ar') {
+                translated = `[مترجم آلياً]: ${text}`;
+                culturalNote = culturalContext ? "تم التحقق من الصيغة اللبقة للتجارة الإلكترونية العابرة للحدود." : null;
+            } else if (targetLang === 'es') {
+                translated = `[Traducción]: ${text}`;
+                culturalNote = culturalContext ? "Adaptado para tono formal de negociación comercial." : null;
+            } else if (targetLang === 'ja') {
+                translated = `[自動翻訳]: ${text}`;
+                culturalNote = culturalContext ? "商業的敬語（丁寧語）に適合させた表現です。" : null;
+            } else if (targetLang === 'de') {
+                translated = `[Übersetzung]: ${text}`;
+                culturalNote = culturalContext ? "Höflichkeitsform für den internationalen Handel angepasst." : null;
+            } else if (targetLang === 'it') {
+                translated = `[Traduzione]: ${text}`;
+                culturalNote = culturalContext ? "Espressione commerciale adeguata al mercato transfrontaliero." : null;
+            } else {
+                translated = `[Translated (${targetLang.toUpperCase()})]: ${text}`;
+                culturalNote = culturalContext ? "Formality level calibrated for cross-border agreement." : null;
+            }
+            engine = 'procedural-linguistic-engine';
+        }
+    }
+
+    const latency = Math.max(14.5, Date.now() - startTime);
+    const result = {
+        sourceLang,
+        targetLang,
+        originalText: text,
+        translatedText: translated,
+        confidenceScore,
+        inferenceLatencyMs: latency,
+        culturalAdaptation: culturalNote,
+        engine,
+        quotaProtected: true
+    };
+
+    if (translationCache.size > 500) {
+        const firstKey = translationCache.keys().next().value;
+        translationCache.delete(firstKey);
+    }
+    translationCache.set(cacheKey, result);
+
+    return result;
 }
 
 function readCookies(req) {
@@ -462,7 +767,8 @@ const server = http.createServer(async (req, res) => {
             pathname === '/api/moderate' ||
             pathname.startsWith('/api/escrow/') ||
             pathname === '/api/escrow/action' ||
-            pathname === '/api/dispute/mediate';
+            pathname === '/api/dispute/mediate' ||
+            (pathname.startsWith('/api/channels/') && req.method === 'POST');
         if (requiresWorkspaceSession && !getSessionUser(req)) {
             return sendJson(res, 401, { error: 'Sign in to use workspace features.' });
         }
@@ -477,83 +783,7 @@ const server = http.createServer(async (req, res) => {
                 return sendJson(res, 400, { error: 'Text field is required' });
             }
 
-            const normalized = text.toLowerCase().trim();
-            const cacheKey = `${sourceLang}:${targetLang}:${culturalContext}:${normalized}`;
-
-            // Check in-memory Cache (0 cost, 0 API calls)
-            if (translationCache.has(cacheKey)) {
-                const cached = translationCache.get(cacheKey);
-                return sendJson(res, 200, {
-                    ...cached,
-                    inferenceLatencyMs: 3.2,
-                    cached: true
-                });
-            }
-
-            const startTime = Date.now();
-            let translated = null;
-            let culturalNote = null;
-            let confidenceScore = 0.984;
-            let engine = 'curated-corpus';
-
-            // 1. Check curated dictionary
-            if (translationCorpus[normalized] && translationCorpus[normalized][targetLang]) {
-                translated = translationCorpus[normalized][targetLang];
-                culturalNote = culturalContext ? translationCorpus[normalized].culturalNote : null;
-                engine = 'curated-corpus';
-            } else {
-                // 2. Try Gemini 1.5 Flash with strict rate limiting & quota protection
-                const geminiRes = await translateWithGemini(text, sourceLang, targetLang, culturalContext);
-                if (geminiRes) {
-                    translated = geminiRes.translatedText;
-                    culturalNote = culturalContext ? geminiRes.culturalAdaptation : null;
-                    confidenceScore = geminiRes.confidenceScore;
-                    engine = 'google-gemini-1.5-flash';
-                } else {
-                    // 3. Robust procedural fallback when offline, no API key, or throttled
-                    if (targetLang === 'ar') {
-                        translated = `[مترجم آلياً]: ${text}`;
-                        culturalNote = culturalContext ? "تم التحقق من الصيغة اللبقة للتجارة الإلكترونية العابرة للحدود." : null;
-                    } else if (targetLang === 'es') {
-                        translated = `[Traducción]: ${text}`;
-                        culturalNote = culturalContext ? "Adaptado para tono formal de negociación comercial." : null;
-                    } else if (targetLang === 'ja') {
-                        translated = `[自動翻訳]: ${text}`;
-                        culturalNote = culturalContext ? "商業的敬語（丁寧語）に適合させた表現です。" : null;
-                    } else if (targetLang === 'de') {
-                        translated = `[Übersetzung]: ${text}`;
-                        culturalNote = culturalContext ? "Höflichkeitsform für den internationalen Handel angepasst." : null;
-                    } else if (targetLang === 'it') {
-                        translated = `[Traduzione]: ${text}`;
-                        culturalNote = culturalContext ? "Espressione commerciale adeguata al mercato transfrontaliero." : null;
-                    } else {
-                        translated = `[Translated (${targetLang.toUpperCase()})]: ${text}`;
-                        culturalNote = culturalContext ? "Formality level calibrated for cross-border agreement." : null;
-                    }
-                    engine = 'procedural-linguistic-engine';
-                }
-            }
-
-            const latency = Math.max(14.5, Date.now() - startTime);
-            const responseData = {
-                sourceLang,
-                targetLang,
-                originalText: text,
-                translatedText: translated,
-                confidenceScore,
-                inferenceLatencyMs: latency,
-                culturalAdaptation: culturalNote,
-                engine: engine,
-                quotaProtected: true
-            };
-
-            // Maintain cache size under 500 entries
-            if (translationCache.size > 500) {
-                const firstKey = translationCache.keys().next().value;
-                translationCache.delete(firstKey);
-            }
-            translationCache.set(cacheKey, responseData);
-
+            const responseData = await translateText(text, sourceLang, targetLang, culturalContext);
             return sendJson(res, 200, responseData);
         }
 
@@ -567,38 +797,115 @@ const server = http.createServer(async (req, res) => {
                 return sendJson(res, 400, { error: 'Text field is required' });
             }
 
-            const phonePattern = /(?:(?:\+?1\s*(?:[.-]\s*)?)?(?:\(\s*([2-9]1[02-9]|[2-9][02-8]1|[2-9][02-8][02-9])\s*\)|([2-9]1[02-9]|[2-9][02-8]1|[2-9][02-8][02-9]))\s*(?:[.-]\s*)?)?([2-9]1[02-9]|[2-9][02-9]1|[2-9][02-9]{2})\s*(?:[.-]\s*)?([0-9]{4})(?:\s*(?:#|x\.?|ext\.?|extension)\s*(\d+))?/gi;
-            const emailPattern = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/gi;
-            const platformKeywords = /\b(whatsapp|telegram|wechat|paypal|venmo|cashapp|zelle|wire transfer)\b/gi;
-
-            let maskedText = text;
-            const violations = [];
-
-            if (phonePattern.test(maskedText)) {
-                violations.push('PHONE_NUMBER_DETECTED');
-                maskedText = maskedText.replace(phonePattern, '[REDACTED PHONE]');
-            }
-            if (emailPattern.test(maskedText)) {
-                violations.push('EMAIL_DETECTED');
-                maskedText = maskedText.replace(emailPattern, '[REDACTED EMAIL]');
-            }
-            if (platformKeywords.test(maskedText)) {
-                violations.push('EXTERNAL_PAYMENT_PLATFORM');
-                maskedText = maskedText.replace(platformKeywords, '[OFF-PLATFORM CHANNEL REDACTED]');
-            }
-
-            const isClean = violations.length === 0;
-
-            return sendJson(res, 200, {
-                originalText: text,
-                sanitizedText: maskedText,
-                isClean: isClean,
-                violationsBlocked: violations,
-                policyComplianceScore: isClean ? 100 : 35
-            });
+            const modData = moderateText(text);
+            return sendJson(res, 200, modData);
         }
 
-        // --- 5. Sandbox Escrow Ledger Endpoints ---
+        // --- 5. Real-Time Channel & Messaging Endpoints (SSE) ---
+        // Tier 1 #2 (Order-Linked Channels) & #4 (Real-Time 1-to-1 Chat)
+        if (req.method === 'GET' && pathname.startsWith('/api/channels/') && pathname.endsWith('/stream')) {
+            const parts = pathname.split('/');
+            const orderId = parts[3] || 'GC-9821';
+
+            res.writeHead(200, {
+                'Content-Type': 'text/event-stream',
+                'Cache-Control': 'no-cache, no-transform',
+                'Connection': 'keep-alive',
+                'Access-Control-Allow-Origin': '*'
+            });
+            res.write(`event: connected\ndata: ${JSON.stringify({ orderId, status: 'listening', timestamp: new Date().toISOString() })}\n\n`);
+
+            if (!sseClientsByChannel.has(orderId)) {
+                sseClientsByChannel.set(orderId, new Set());
+            }
+            const channelSet = sseClientsByChannel.get(orderId);
+            channelSet.add(res);
+
+            const keepAlive = setInterval(() => {
+                try { res.write(': keepalive\n\n'); } catch (e) { clearInterval(keepAlive); }
+            }, 20000);
+
+            req.on('close', () => {
+                clearInterval(keepAlive);
+                channelSet.delete(res);
+            });
+            return;
+        }
+
+        if (req.method === 'GET' && pathname.startsWith('/api/channels/') && pathname.endsWith('/messages')) {
+            const parts = pathname.split('/');
+            const orderId = parts[3] || 'GC-9821';
+            const messages = db.channelMessages[orderId] || [];
+            return sendJson(res, 200, { orderId, messages });
+        }
+
+        if (req.method === 'POST' && pathname.startsWith('/api/channels/') && pathname.endsWith('/messages')) {
+            const parts = pathname.split('/');
+            const orderId = parts[3] || 'GC-9821';
+            const user = getSessionUser(req);
+            const body = await parseJsonBody(req);
+            const text = String(body.text || '').trim();
+
+            if (!text) {
+                return sendJson(res, 400, { error: 'Text field is required' });
+            }
+
+            const modResult = moderateText(text);
+            const isSenderBuyer = user ? user.role === 'buyer' : true;
+
+            // Determine language routing per channel
+            let defaultSourceLang = 'en';
+            let defaultTargetLang = 'ar';
+            if (orderId === 'GC-9821') {
+                defaultSourceLang = isSenderBuyer ? 'ar' : 'en';
+                defaultTargetLang = isSenderBuyer ? 'en' : 'ar';
+            } else if (orderId === 'GC-7740') {
+                defaultSourceLang = isSenderBuyer ? 'de' : 'en';
+                defaultTargetLang = isSenderBuyer ? 'en' : 'de';
+            } else if (orderId === 'GC-6102') {
+                defaultSourceLang = isSenderBuyer ? 'ja' : 'en';
+                defaultTargetLang = isSenderBuyer ? 'en' : 'ja';
+            }
+
+            const sourceLang = body.sourceLang || defaultSourceLang;
+            const targetLang = body.targetLang || defaultTargetLang;
+
+            let translation = null;
+            if (!modResult.isMasked) {
+                translation = await translateText(text, sourceLang, targetLang, true);
+            }
+
+            const messageObj = {
+                id: `msg_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+                orderId,
+                sender: user ? { id: user.id, name: user.name, role: user.role } : { id: 'buyer_dubai_12', name: 'Tariq Al-Mansoor', role: 'buyer' },
+                originalText: text,
+                sanitizedText: modResult.sanitizedText,
+                isMasked: modResult.isMasked,
+                violations: modResult.violationsBlocked,
+                sourceLang,
+                targetLang,
+                translation: translation ? {
+                    translatedText: translation.translatedText,
+                    confidenceScore: translation.confidenceScore,
+                    culturalAdaptation: translation.culturalAdaptation,
+                    engine: translation.engine
+                } : null,
+                timestamp: new Date().toISOString()
+            };
+
+            if (!db.channelMessages[orderId]) {
+                db.channelMessages[orderId] = [];
+            }
+            db.channelMessages[orderId].push(messageObj);
+
+            // Broadcast real-time message to all active window listeners
+            broadcastToChannel(orderId, 'message', messageObj);
+
+            return sendJson(res, 201, { success: true, message: messageObj });
+        }
+
+        // --- 6. Sandbox Escrow Ledger Endpoints ---
         if (req.method === 'GET' && pathname.startsWith('/api/escrow/')) {
             const orderId = pathname.split('/')[3] || 'GC-9821';
             const order = db.orders[orderId];
@@ -636,12 +943,29 @@ const server = http.createServer(async (req, res) => {
                     deadline72Hr: new Date(Date.now() + (72 * 3600 * 1000)).toISOString(),
                     status: 'AI_MEDIATION_ACTIVE',
                     settlementProposals: [
-                        { id: 1, type: 'FULL_REFUND', summary: 'Return item with pre-paid label for full $249.00 USD reimbursement' },
-                        { id: 2, type: 'PARTIAL_SETTLEMENT', summary: 'Keep item with immediate $49.80 USD (20%) courtesy credit' },
+                        { id: 1, type: 'FULL_REFUND', summary: 'Return item with pre-paid label for full reimbursement' },
+                        { id: 2, type: 'PARTIAL_SETTLEMENT', summary: `Keep item with immediate $${(order.amount * 0.2).toFixed(2)} USD (20%) courtesy credit` },
                         { id: 3, type: 'HUMAN_ARBITRATION', summary: 'Escalate to certified bilingual dispute officer' }
                     ]
                 };
+            } else if (action === 'SETTLE_PARTIAL') {
+                order.status = 'DISPUTE_SETTLED_PARTIAL';
+                if (order.dispute) order.dispute.status = 'SETTLED_PARTIAL_CREDIT';
+            } else if (action === 'SETTLE_REFUND') {
+                order.status = 'RETURN_LABEL_ISSUED';
+                if (order.dispute) order.dispute.status = 'RETURN_PENDING';
+            } else if (action === 'SETTLE_AGENT') {
+                order.status = 'HUMAN_ARBITRATION_ASSIGNED';
+                if (order.dispute) order.dispute.status = 'ESCALATED_TO_AGENT';
             }
+
+            // Real-time broadcast escrow state update to all open windows
+            broadcastToChannel(order.id, 'escrow_update', {
+                orderId: order.id,
+                newStatus: order.status,
+                milestones: order.escrowMilestones,
+                dispute: order.dispute
+            });
 
             return sendJson(res, 200, {
                 success: true,

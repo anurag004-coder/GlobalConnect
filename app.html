@@ -1090,14 +1090,16 @@
                     return;
                 }
                 const { user } = await response.json();
+                currentUser = user;
                 const label = document.getElementById('signedInUser');
                 label.textContent = `${user.name} · ${user.role.charAt(0).toUpperCase()}${user.role.slice(1)}`;
                 label.setAttribute('aria-label', `Signed in as ${user.name}, ${user.role}`);
                 document.title = `${user.name} · GlobalConnect Workspace`;
-                const conversationTitle = document.getElementById('appConversationTitle');
-                if (user.role === 'buyer') conversationTitle.textContent = `${user.name} (Buyer) ⟷ Marco Rossi (Seller)`;
-                if (user.role === 'seller') conversationTitle.textContent = `Tariq Al-Mansoor (Buyer) ⟷ ${user.name} (Seller)`;
-                if (user.role === 'agent') switchAppView('agent-inbox');
+                if (user.role === 'agent') {
+                    switchAppView('agent-inbox');
+                } else {
+                    loadChannel('GC-9821');
+                }
             } catch (error) {
                 window.location.replace('/auth.html?next=%2Fapp.html');
             }
@@ -1152,60 +1154,216 @@
             }
         }
 
-        async function sendAppMessage(e) {
-            e.preventDefault();
-            const input = document.getElementById('appMsgInput');
-            const text = input.value.trim();
-            if (!text) return;
-            input.value = "";
+        let currentOrderId = 'GC-9821';
+        let currentEventSource = null;
+        let currentUser = null;
 
+        function loadChannel(orderId) {
+            currentOrderId = orderId;
+
+            // 1. Highlight sidebar item
+            document.querySelectorAll('.channel-item').forEach(item => {
+                const isMatch = item.getAttribute('onclick')?.includes(`'${orderId}'`);
+                item.classList.toggle('active', Boolean(isMatch));
+            });
+
+            // 2. Fetch order state and update pinned cards
+            fetchOrderContext(orderId);
+
+            // 3. Connect real-time SSE stream
+            connectChannelStream(orderId);
+
+            // 4. Load message history
+            fetchChannelMessages(orderId);
+        }
+
+        async function fetchOrderContext(orderId) {
+            try {
+                const res = await fetch(`/api/escrow/${orderId}`, { credentials: 'same-origin' });
+                if (!res.ok) return;
+                const order = await res.json();
+                renderOrderContext(order);
+            } catch (err) {
+                console.error('Failed to load order context:', err);
+            }
+        }
+
+        function renderOrderContext(order) {
+            // Update Top Header
+            const conversationTitle = document.getElementById('appConversationTitle');
+            if (conversationTitle) {
+                const buyerName = order.buyerName || 'Buyer';
+                const sellerName = order.sellerName || 'Seller';
+                conversationTitle.textContent = `${buyerName} (Buyer) ⟷ ${sellerName} (Seller)`;
+            }
+
+            // Update Pinned Context Card
+            const pinnedHeader = document.querySelector('#contextColumn .card-header-label span:last-child');
+            if (pinnedHeader) pinnedHeader.textContent = `#${order.id}`;
+            const iconBox = document.querySelector('#contextColumn .product-icon-box');
+            if (iconBox) iconBox.textContent = order.icon || '📦';
+            const descTitle = document.querySelector('#contextColumn .product-desc-title');
+            if (descTitle) descTitle.textContent = order.title || 'Marketplace Item';
+            const descSub = document.querySelector('#contextColumn .product-desc-sub');
+            if (descSub) descSub.textContent = `SKU: ${order.sku || order.id} • ${order.origin} ➔ ${order.destination}`;
+            const amountVal = document.querySelector('#contextColumn strong[style*="color: #4ade80"]');
+            if (amountVal) amountVal.textContent = `$${Number(order.amount).toFixed(2)} USD`;
+
+            // Update Escrow Milestones
+            renderEscrowTimeline(order);
+        }
+
+        function renderEscrowTimeline(order) {
+            const milestones = order.escrowMilestones || [];
+            const step3 = document.getElementById('wsStep3');
+            const step4 = document.getElementById('wsStep4');
+            const btn = document.getElementById('wsReleaseBtn');
+
+            if (order.status === 'ESCROW_FROZEN') {
+                if (step3) { step3.className = "step-bubble"; step3.style.background = "#E94560"; step3.textContent = "!"; }
+                if (step4) { step4.className = "step-bubble pending"; step4.textContent = "○"; }
+                if (btn) {
+                    btn.textContent = "⚠️ Escrow Frozen (Mediation Active)";
+                    btn.style.background = "rgba(233, 69, 96, 0.2)";
+                    btn.style.borderColor = "#E94560";
+                    btn.disabled = true;
+                }
+                return;
+            }
+
+            const step2Done = milestones[1]?.completed;
+            const step3Done = milestones[2]?.completed;
+            const step4Done = milestones[3]?.completed;
+
+            if (step3) {
+                step3.style.background = "";
+                step3.className = step3Done ? "step-bubble done" : (step2Done ? "step-bubble current" : "step-bubble pending");
+                step3.textContent = step3Done ? "✓" : (step2Done ? "●" : "○");
+            }
+            if (step4) {
+                step4.style.background = "";
+                step4.className = step4Done ? "step-bubble done" : (step3Done ? "step-bubble current" : "step-bubble pending");
+                step4.textContent = step4Done ? "✓" : (step3Done ? "●" : "○");
+            }
+
+            if (btn) {
+                if (step4Done) {
+                    btn.textContent = `Transaction Finalized ($${Number(order.amount).toFixed(2)} Released)`;
+                    btn.style.background = "";
+                    btn.style.borderColor = "";
+                    btn.disabled = true;
+                } else {
+                    btn.textContent = `Verify Inspection & Release $${Number(order.amount).toFixed(2)}`;
+                    btn.style.background = "";
+                    btn.style.borderColor = "";
+                    btn.disabled = false;
+                }
+            }
+        }
+
+        function connectChannelStream(orderId) {
+            if (currentEventSource) {
+                currentEventSource.close();
+            }
+
+            currentEventSource = new EventSource(`/api/channels/${orderId}/stream`);
+
+            currentEventSource.addEventListener('message', (event) => {
+                try {
+                    const message = JSON.parse(event.data);
+                    appendMessageCard(message);
+                } catch (e) {
+                    console.error('Failed to parse SSE message:', e);
+                }
+            });
+
+            currentEventSource.addEventListener('escrow_update', (event) => {
+                try {
+                    const data = JSON.parse(event.data);
+                    if (data.orderId === currentOrderId) {
+                        fetchOrderContext(currentOrderId);
+                        if (data.dispute) {
+                            renderDisputeAlert(data.dispute);
+                        }
+                    }
+                } catch (e) {
+                    console.error('Failed to parse SSE escrow_update:', e);
+                }
+            });
+
+            currentEventSource.onerror = (err) => {
+                console.warn('SSE stream disconnected, auto-retrying...');
+            };
+        }
+
+        async function fetchChannelMessages(orderId) {
             const stream = document.getElementById('appChatStream');
-
-            // Contact masking check via live backend
-            let isMasked = false;
-            let sanitized = text;
-            let translated = `"[Translated Output]: ${text}"`;
-            let conf = "99.2%";
+            stream.innerHTML = '<div style="text-align: center; color: var(--color-dim); font-size: 0.8rem; padding: 20px;">Synchronizing channel history...</div>';
 
             try {
-                const modRes = await fetch('/api/moderate', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ text })
-                });
-                if (modRes.ok) {
-                    const modData = await modRes.json();
-                    if (!modData.isClean) {
-                        isMasked = true;
-                        sanitized = modData.sanitizedText;
-                    }
-                }
+                const res = await fetch(`/api/channels/${orderId}/messages`, { credentials: 'same-origin' });
+                if (!res.ok) return;
+                const data = await res.json();
+                stream.innerHTML = '';
+                (data.messages || []).forEach(msg => appendMessageCard(msg, false));
+                stream.scrollTop = stream.scrollHeight;
+            } catch (e) {
+                stream.innerHTML = '<div style="color: #ff8597; font-size: 0.8rem; padding: 20px;">Error synchronizing channel.</div>';
+            }
+        }
 
-                if (!isMasked) {
-                    const transRes = await fetch('/api/translate', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ text, sourceLang: 'en', targetLang: 'ar' })
-                    });
-                    if (transRes.ok) {
-                        const transData = await transRes.json();
-                        translated = transData.translatedText;
-                        conf = `${(transData.confidenceScore * 100).toFixed(1)}%`;
-                    }
-                }
-            } catch (err) {}
+        function appendMessageCard(msg, autoScroll = true) {
+            const stream = document.getElementById('appChatStream');
+            if (!stream) return;
+
+            // Avoid duplicate rendering
+            if (msg.id && document.getElementById(msg.id)) return;
+
+            // Deal Card type (Tier 1 #6)
+            if (msg.type === 'deal_card') {
+                const dealCard = document.createElement('div');
+                if (msg.id) dealCard.id = msg.id;
+                dealCard.className = "deal-card";
+                dealCard.innerHTML = `
+                    <div class="deal-card-header">
+                        <span class="deal-card-title">🤝 ${msg.deal?.title || 'Proposed Specification Agreement'}</span>
+                        <span class="badge-pill badge-escrow">${msg.deal?.status || 'Binding Offer'}</span>
+                    </div>
+                    <div class="deal-terms-list">
+                        ${(msg.deal?.terms || []).map(t => `• ${t}`).join('<br>')}
+                    </div>
+                    <div class="deal-actions">
+                        <button class="btn-action btn-accept" onclick="executeBindingDeal()">Accept Binding Terms</button>
+                        <button class="btn-action btn-counter" onclick="alert('Counter-offer proposal dialog opened.')">Propose Counter-Terms</button>
+                    </div>
+                `;
+                stream.appendChild(dealCard);
+                if (autoScroll) stream.scrollTop = stream.scrollHeight;
+                return;
+            }
 
             const card = document.createElement('div');
+            if (msg.id) card.id = msg.id;
             card.className = "msg-dual-card";
+
+            const senderName = msg.sender?.name || 'Participant';
+            const senderRole = msg.sender?.role ? ` (${msg.sender.role.toUpperCase()})` : '';
+            const isMasked = Boolean(msg.isMasked);
+            const origText = isMasked ? msg.sanitizedText : msg.originalText;
+            const transText = msg.translation?.translatedText || `"[Translated Output]: ${origText}"`;
+            const conf = msg.translation?.confidenceScore ? `${(msg.translation.confidenceScore * 100).toFixed(1)}% Conf` : '98.5% Conf';
+            const culturalNote = msg.translation?.culturalAdaptation;
+            const timeStr = msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Just now';
+
             if (isMasked) {
                 card.style.borderLeft = "3px solid #E94560";
                 card.innerHTML = `
                     <div>
                         <div class="msg-lang-tag" style="color: #ff8597;">
-                            <span>Outbound Security Filter</span>
-                            <span>Masked</span>
+                            <span>${senderName}${senderRole} • Security Guard</span>
+                            <span>${timeStr}</span>
                         </div>
-                        <div class="msg-text-main">${sanitized}</div>
+                        <div class="msg-text-main">${origText}</div>
                     </div>
                     <div>
                         <div class="msg-lang-tag">
@@ -1221,36 +1379,68 @@
                 card.innerHTML = `
                     <div>
                         <div class="msg-lang-tag">
-                            <span>English (Original)</span>
-                            <span>Just now</span>
+                            <span>${senderName}${senderRole} • Original (${(msg.sourceLang || 'en').toUpperCase()})</span>
+                            <span>${timeStr}</span>
                         </div>
-                        <div class="msg-text-main">${text}</div>
+                        <div class="msg-text-main">${origText}</div>
                     </div>
                     <div>
                         <div class="msg-lang-tag">
-                            <span style="color: #60a5fa;">Arabic (Real-Time Translation)</span>
-                            <span class="confidence-tag">${conf} Conf</span>
+                            <span style="color: #60a5fa;">Real-Time Translation (${(msg.targetLang || 'ar').toUpperCase()})</span>
+                            <span class="confidence-tag">${conf}</span>
                         </div>
-                        <div class="msg-text-main">${translated}</div>
+                        <div class="msg-text-main">${transText}</div>
+                        ${culturalNote ? `
+                        <div class="cultural-badge">
+                            💡 <strong>Cultural Context:</strong> ${culturalNote}
+                        </div>` : ''}
                     </div>
                 `;
             }
+
             stream.appendChild(card);
-            stream.scrollTop = stream.scrollHeight;
+            if (autoScroll) stream.scrollTop = stream.scrollHeight;
+        }
+
+        async function sendAppMessage(e) {
+            e.preventDefault();
+            const input = document.getElementById('appMsgInput');
+            const text = input.value.trim();
+            if (!text) return;
+            input.value = "";
+
+            try {
+                const res = await fetch(`/api/channels/${currentOrderId}/messages`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({ text })
+                });
+                if (!res.ok) {
+                    const err = await res.json();
+                    alert(err.error || 'Failed to send message');
+                }
+            } catch (err) {
+                console.error('Failed to send message:', err);
+            }
         }
 
         async function openDisputeFromApp() {
-            if (!confirm("Are you sure you want to freeze the $249.00 USD escrow funds and initiate 72-hour AI Dispute Mediation?")) return;
+            if (!confirm(`Freeze escrow funds and initiate 72-hour AI Dispute Mediation on ${currentOrderId}?`)) return;
 
             try {
                 await fetch('/api/escrow/action', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ orderId: 'GC-9821', action: 'DISPUTE' })
+                    credentials: 'same-origin',
+                    body: JSON.stringify({ orderId: currentOrderId, action: 'DISPUTE' })
                 });
-            } catch (e) {}
+            } catch (e) {
+                console.error(e);
+            }
+        }
 
-            alert("⚖️ Dispute Registered! Escrow funds frozen. Channel transitioned to 72-hr AI Mediation.");
+        function renderDisputeAlert(dispute) {
             const stream = document.getElementById('appChatStream');
             const alertCard = document.createElement('div');
             alertCard.className = "msg-dual-card";
@@ -1259,36 +1449,59 @@
             alertCard.innerHTML = `
                 <div>
                     <div class="msg-lang-tag" style="color: #ff8597;">AI Dispute Arbiter</div>
-                    <div class="msg-text-main" style="font-size: 0.85rem;"><strong>Escrow Frozen:</strong> $249.00 locked in ledger. 72-hr clock started.</div>
+                    <div class="msg-text-main" style="font-size: 0.85rem;"><strong>Escrow Frozen:</strong> Funds locked in ledger. 72-hr mediation clock started.</div>
+                    <div style="font-size: 0.74rem; color: #cbd5e1; margin-top: 4px;">Status: ${dispute.status}</div>
                 </div>
                 <div>
-                    <div class="msg-lang-tag" style="color: #60a5fa;">Resolution Options</div>
-                    <div class="msg-text-main" style="font-size: 0.8rem;">1. Full refund on return • 2. 20% courtesy credit • 3. Human agent handoff</div>
+                    <div class="msg-lang-tag" style="color: #60a5fa;">Interactive Settlement Proposals</div>
+                    <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 6px;">
+                        <button class="btn-action" style="font-size: 0.74rem; background: rgba(59, 130, 246, 0.2); color: #93c5fd; text-align: left; padding: 6px 10px;" onclick="settleDisputeAction('SETTLE_REFUND')">
+                            1. Issue Pre-Paid Return Label (Full Refund)
+                        </button>
+                        <button class="btn-action" style="font-size: 0.74rem; background: rgba(11, 194, 62, 0.2); color: #4ade80; text-align: left; padding: 6px 10px;" onclick="settleDisputeAction('SETTLE_PARTIAL')">
+                            2. 20% Courtesy Credit (Keep Item)
+                        </button>
+                        <button class="btn-action" style="font-size: 0.74rem; background: rgba(245, 158, 11, 0.2); color: #fde047; text-align: left; padding: 6px 10px;" onclick="settleDisputeAction('SETTLE_AGENT')">
+                            3. Escalate to Certified Bilingual Agent
+                        </button>
+                    </div>
                 </div>
             `;
             stream.appendChild(alertCard);
             stream.scrollTop = stream.scrollHeight;
         }
 
+        async function settleDisputeAction(action) {
+            try {
+                const res = await fetch('/api/escrow/action', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({ orderId: currentOrderId, action })
+                });
+                if (res.ok) {
+                    alert('Settlement option executed! Escrow state updated across all windows.');
+                }
+            } catch (e) {
+                console.error('Failed to execute settlement:', e);
+            }
+        }
+
         async function releaseWorkspaceEscrow() {
-            const step3 = document.getElementById('wsStep3');
-            const step4 = document.getElementById('wsStep4');
-            const btn = document.getElementById('wsReleaseBtn');
-
-            step3.className = "step-bubble done";
-            step3.textContent = "✓";
-            step4.className = "step-bubble done";
-            step4.textContent = "✓";
-            btn.textContent = "Transaction Finalized ($249.00 Released)";
-            btn.disabled = true;
-
             try {
                 await fetch('/api/escrow/action', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ orderId: 'GC-9821', action: 'RELEASE' })
+                    credentials: 'same-origin',
+                    body: JSON.stringify({ orderId: currentOrderId, action: 'RELEASE' })
                 });
-            } catch(e) {}
+            } catch(e) {
+                console.error(e);
+            }
+        }
+
+        function executeBindingDeal() {
+            alert('Offer Accepted! Terms synchronized with Escrow Ledger and broadcast to both parties.');
         }
 
         // ==========================================

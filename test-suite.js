@@ -191,8 +191,22 @@ async function runTests() {
         assert("AI dispute analysis generated with bilingual timeline", Array.isArray(mediateAnalysis.data.bilingualTimeline));
         console.log();
 
-        // --- Test 9: HMAC Webhook Signature Verification ---
-        console.log("▶ [Test 9] HMAC-SHA256 Webhook Verification");
+        // --- Test 9: Real-Time Order Channels & Message Pipeline ---
+        console.log("▶ [Test 9] Order-Linked Channels & Real-Time Message Pipeline");
+        const channelMsgs = await request('GET', '/api/channels/GC-9821/messages');
+        assert("Channel messages retrieved (200 OK)", channelMsgs.status === 200);
+        assert("Initial deal conversation and spec card seeded", Array.isArray(channelMsgs.data.messages) && channelMsgs.data.messages.length >= 3);
+
+        const sendMsgRes = await request('POST', '/api/channels/GC-9821/messages', {
+            text: 'Is this genuine leather?'
+        });
+        assert("Channel message posted with live translation (201 Created)", sendMsgRes.status === 201);
+        assert("Message object generated with ID and sender", typeof sendMsgRes.data.message.id === 'string' && sendMsgRes.data.message.sender.role === 'buyer');
+        assert("Real-time dual translation attached", sendMsgRes.data.message.translation !== null);
+        console.log();
+
+        // --- Test 10: HMAC Webhook Signature Verification ---
+        console.log("▶ [Test 10] HMAC-SHA256 Webhook Verification");
         const webhookPayload = JSON.stringify({
             event: 'message.sent',
             channelId: 'order_9821',
