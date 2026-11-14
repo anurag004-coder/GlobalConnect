@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "GlobalConnect - Revolutionary Multi-Language Marketplace Chat with AI Translation",
   "scripts": {
-    "start": "npx serve -l 3000 .",
+    "start": "node server.js",
+    "test": "node -e \"process.env.PORT = '3456'; const server = require('./server.js'); server.listen(3456, '127.0.0.1', async () => { const { runTests } = require('./test-suite.js'); const ok = await runTests(); server.close(() => process.exit(ok ? 0 : 1)); });\"",
     "generate-pdf": "node generate-pdf.js"
   },
   "devDependencies": {

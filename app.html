@@ -7,6 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
         :root {
             --bg-body: #0a0c14;
@@ -533,6 +534,123 @@
         .inbox-table tr:hover td {
             background: rgba(255, 255, 255, 0.02);
         }
+
+        /* AR Spatial Inspector View (Tier 3 #16) */
+        .ar-view {
+            display: none;
+            flex: 1;
+            padding: 24px 32px;
+            overflow-y: auto;
+            background: var(--bg-body);
+        }
+
+        .ar-container-grid {
+            display: grid;
+            grid-template-columns: 1.25fr 0.95fr;
+            gap: 24px;
+            margin-top: 18px;
+            min-height: 520px;
+        }
+
+        .ar-viewport-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .ar-viewport-header {
+            padding: 12px 18px;
+            background: rgba(15, 19, 34, 0.9);
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 2;
+        }
+
+        .ar-canvas-wrap {
+            flex: 1;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 440px;
+            background: radial-gradient(circle at center, #16203c 0%, #0c0f1c 70%);
+        }
+
+        #arCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+            cursor: grab;
+        }
+
+        #arCanvas:active {
+            cursor: grabbing;
+        }
+
+        .ar-scan-laser {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #0BC23E, #d7ef9b, #0BC23E, transparent);
+            box-shadow: 0 0 15px #0BC23E, 0 0 30px #0BC23E;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .ar-scan-laser.scanning {
+            opacity: 1;
+            animation: arScanSweep 2s ease-in-out infinite;
+        }
+
+        @keyframes arScanSweep {
+            0% { top: 12%; }
+            50% { top: 88%; }
+            100% { top: 12%; }
+        }
+
+        .ar-deck-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .ar-spec-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .ar-spec-card.highlight {
+            border-color: #3b82f6;
+            background: rgba(59, 130, 246, 0.08);
+            box-shadow: 0 0 16px rgba(59, 130, 246, 0.2);
+        }
+
+        .ar-spec-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
     </style>
 </head>
 <body>
@@ -547,6 +665,7 @@
         <!-- Workspace View Switcher -->
         <div class="role-tabs">
             <button class="role-tab-btn active" onclick="switchAppView('chat')">Active Deal Chat</button>
+            <button class="role-tab-btn" onclick="switchAppView('ar-inspector')">AR 3D Inspector</button>
             <button class="role-tab-btn" onclick="switchAppView('agent-inbox')">Agent Support Inbox</button>
             <button class="role-tab-btn" onclick="switchAppView('analytics')">Marketplace Metrics</button>
         </div>
@@ -715,6 +834,10 @@
                         <span style="color: var(--color-dim);">Escrow Value:</span>
                         <strong style="color: #4ade80;">$249.00 USD</strong>
                     </div>
+                    <button class="btn-action" style="width: 100%; margin-top: 10px; background: rgba(59, 130, 246, 0.15); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.35); display: flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700; padding: 9px;" onclick="switchAppView('ar-inspector')">
+                        <span>🔍 AR 3D Spec & Label Inspector</span>
+                        <span class="badge-pill" style="background: rgba(11, 194, 62, 0.2); color: #4ade80; font-size: 0.65rem;">-23% Returns</span>
+                    </button>
                 </div>
 
                 <!-- Milestone Escrow Ledger Card -->
@@ -846,6 +969,114 @@
                 </div>
             </div>
 
+            <!-- 4. AR 3D SPATIAL VISUAL TRANSLATOR VIEW (Tier 3 #16) -->
+            <div class="ar-view" id="arView">
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
+                            <h2 style="font-size: 1.5rem; font-weight: 800;">Three.js AR Spatial Translation Assistant</h2>
+                            <span class="badge-pill" style="background: rgba(11, 194, 62, 0.2); color: #4ade80;">Proven -23% Return Reduction</span>
+                        </div>
+                        <p style="color: var(--color-muted); font-size: 0.88rem;">Interactive 3D spatial overlay translating foreign physical packaging, garment spec tags, and authenticity seals in real time.</p>
+                    </div>
+                    <button class="btn-action" style="background: rgba(255, 255, 255, 0.08); color: white;" onclick="switchAppView('chat')">
+                        ← Back to Deal Chat
+                    </button>
+                </div>
+
+                <div class="ar-container-grid">
+                    <!-- Left: 3D WebGL Canvas Viewport -->
+                    <div class="ar-viewport-card">
+                        <div class="ar-viewport-header">
+                            <div style="display: flex; align-items: center; gap: 8px; font-size: 0.82rem; font-weight: 700;">
+                                <span style="color: #4ade80;">● AR LIVE FEED</span>
+                                <span style="color: var(--color-dim);">•</span>
+                                <span>Item #GC-9821: Tuscan Leather Garment</span>
+                            </div>
+                            <div style="display: flex; gap: 6px;">
+                                <button class="btn-action" style="padding: 4px 10px; font-size: 0.72rem; background: rgba(59, 130, 246, 0.2); color: #93c5fd;" onclick="triggerARScan()">⚡ Pulse Scan Mesh</button>
+                                <button class="btn-action" style="padding: 4px 10px; font-size: 0.72rem; background: rgba(255, 255, 255, 0.08); color: var(--color-muted);" onclick="reset3DCamera()">🔄 Reset View</button>
+                            </div>
+                        </div>
+
+                        <div class="ar-canvas-wrap" id="arCanvasWrap">
+                            <canvas id="arCanvas"></canvas>
+                            <div class="ar-scan-laser" id="arLaser"></div>
+                            
+                            <!-- Floating 3D Callout Overlays -->
+                            <div id="arFloatingCallout" style="position: absolute; bottom: 18px; left: 18px; right: 18px; background: rgba(15, 19, 34, 0.9); backdrop-filter: blur(8px); border: 1px solid rgba(59, 130, 246, 0.4); border-radius: 8px; padding: 12px 16px; display: flex; align-items: center; justify-content: space-between; z-index: 6;">
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <div style="font-size: 1.4rem;">🧥</div>
+                                    <div>
+                                        <div style="font-weight: 700; font-size: 0.84rem; color: #93c5fd;" id="arStatusHeading">Spatial Mesh Aligned (100% Tracking Confidence)</div>
+                                        <div style="font-size: 0.74rem; color: var(--color-muted);" id="arStatusSub">Drag to rotate 3D package in 360°. Specifications mapped to agreed Escrow contract.</div>
+                                    </div>
+                                </div>
+                                <span class="badge-pill" style="background: rgba(11, 194, 62, 0.2); color: #4ade80;" id="arStatusBadge">Verified Authentic</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right: Translation & Specification Deck -->
+                    <div class="ar-deck-card">
+                        <div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                <label style="font-size: 0.78rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; color: var(--color-dim);">Target Translation Language</label>
+                                <span class="badge-pill" style="background: rgba(59, 130, 246, 0.2); color: #93c5fd;">Real-Time AR Sync</span>
+                            </div>
+                            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;">
+                                <button class="role-tab-btn active" id="arLangAr" onclick="setARLanguage('ar')">العربية (AR)</button>
+                                <button class="role-tab-btn" id="arLangEn" onclick="setARLanguage('en')">English (EN)</button>
+                                <button class="role-tab-btn" id="arLangEs" onclick="setARLanguage('es')">Español (ES)</button>
+                                <button class="role-tab-btn" id="arLangJa" onclick="setARLanguage('ja')">日本語 (JA)</button>
+                            </div>
+                        </div>
+
+                        <!-- Spec 1: Material Composition -->
+                        <div class="ar-spec-card highlight" id="specCardMaterial">
+                            <div class="ar-spec-header" style="color: #60a5fa;">
+                                <span>🏷️ Physical Spec Tag: Material Composition</span>
+                                <span class="confidence-tag">99.4% Match</span>
+                            </div>
+                            <div style="font-size: 0.72rem; color: var(--color-dim); margin-bottom: 6px;">Original Label (Italian): "100% Vera Pelle Bovina Pieno Fiore di Toscana"</div>
+                            <div style="font-weight: 700; font-size: 0.88rem; color: white;" id="arTextMaterial">
+                                "جلد عجل توسكاني طبيعي أصلي 100% عالي الجودة ومعتمد"
+                            </div>
+                            <div style="margin-top: 6px; font-size: 0.72rem; color: #93c5fd;">
+                                💡 <em>Matches Buyer's European EU 50 specification query in deal chat.</em>
+                            </div>
+                        </div>
+
+                        <!-- Spec 2: Care & Maintenance -->
+                        <div class="ar-spec-card" id="specCardCare">
+                            <div class="ar-spec-header" style="color: #f59e0b;">
+                                <span>🧼 Physical Spec Tag: Care & Maintenance</span>
+                                <span class="confidence-tag">98.9% Match</span>
+                            </div>
+                            <div style="font-size: 0.72rem; color: var(--color-dim); margin-bottom: 6px;">Original Label (Italian): "Trattare con balsamo neutro. Non lavare ad acqua."</div>
+                            <div style="font-weight: 700; font-size: 0.88rem; color: white;" id="arTextCare">
+                                "يُعالج ببلسم مخصص للجلد الطبيعي. لا يُغسل بالماء أو المواد الكيميائية."
+                            </div>
+                            <div style="margin-top: 6px; font-size: 0.72rem; color: #fde047;">
+                                ⚠️ <em>Crucial care note: Prevents accidental return damage.</em>
+                            </div>
+                        </div>
+
+                        <!-- Spec 3: Authenticity & Escrow Hologram -->
+                        <div class="ar-spec-card" id="specCardAuth">
+                            <div class="ar-spec-header" style="color: #4ade80;">
+                                <span>🔒 Escrow Hologram Tag: Guild Registration</span>
+                                <span class="confidence-tag">100% Verified</span>
+                            </div>
+                            <div style="font-size: 0.72rem; color: var(--color-dim); margin-bottom: 6px;">Artisan Registry: Consorzio Vera Pelle Italiana #GC-MILAN-88</div>
+                            <div style="font-weight: 700; font-size: 0.88rem; color: white;" id="arTextAuth">
+                                "رمز المصادقة الرقمي متطابق مع عقد الضمان المالي في المنصة ($249.00 USD)"
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </main>
     </div>
 
@@ -887,6 +1118,7 @@
             const sidebar = document.getElementById('sidebarSection');
             const inbox = document.getElementById('inboxView');
             const metrics = document.getElementById('metricsView');
+            const arView = document.getElementById('arView');
 
             if (view === 'chat') {
                 chatCol.style.display = 'flex';
@@ -894,18 +1126,29 @@
                 sidebar.style.display = 'flex';
                 inbox.style.display = 'none';
                 metrics.style.display = 'none';
+                if (arView) arView.style.display = 'none';
+            } else if (view === 'ar-inspector') {
+                chatCol.style.display = 'none';
+                contextCol.style.display = 'none';
+                sidebar.style.display = 'none';
+                inbox.style.display = 'none';
+                metrics.style.display = 'none';
+                if (arView) arView.style.display = 'block';
+                setTimeout(initThreeAR, 60);
             } else if (view === 'agent-inbox') {
                 chatCol.style.display = 'none';
                 contextCol.style.display = 'none';
                 sidebar.style.display = 'none';
                 inbox.style.display = 'block';
                 metrics.style.display = 'none';
+                if (arView) arView.style.display = 'none';
             } else if (view === 'analytics') {
                 chatCol.style.display = 'none';
                 contextCol.style.display = 'none';
                 sidebar.style.display = 'none';
                 inbox.style.display = 'none';
                 metrics.style.display = 'block';
+                if (arView) arView.style.display = 'none';
             }
         }
 
@@ -1046,6 +1289,243 @@
                     body: JSON.stringify({ orderId: 'GC-9821', action: 'RELEASE' })
                 });
             } catch(e) {}
+        }
+
+        // ==========================================
+        // Three.js 3D AR Visual Translation Engine
+        // Tier 3 Winner Feature (#16)
+        // ==========================================
+        let arRenderer = null;
+        let arScene = null;
+        let arCamera = null;
+        let arMeshGroup = null;
+        let arReticle = null;
+        let isARInitialized = false;
+        let isPointerDown = false;
+        let previousPointerPosition = { x: 0, y: 0 };
+
+        const arTranslations = {
+            ar: {
+                material: "جلد عجل توسكاني طبيعي أصلي 100% عالي الجودة ومعتمد",
+                care: "يُعالج ببلسم مخصص للجلد الطبيعي. لا يُغسل بالماء أو المواد الكيميائية.",
+                auth: "رمز المصادقة الرقمي متطابق مع عقد الضمان المالي في المنصة ($249.00 USD)",
+                statusHeading: "تمت محاذاة المجسم المكاني (دقة تعقب 100%)",
+                statusSub: "اسحب لتدوير الطرد بزاوية 360 درجة. تم تعريب بطاقات المواصفات آلياً.",
+                statusBadge: "معتمد ومطابق للمواصفات"
+            },
+            en: {
+                material: "100% Certified Authentic Tuscan Full-Grain Calfskin Leather",
+                care: "Treat with neutral leather conditioning balm only. Do not wash with water.",
+                auth: "Digital Authenticity Registry #IT-94821 verified against Escrow Contract ($249.00 USD)",
+                statusHeading: "Spatial Mesh Aligned (100% Tracking Confidence)",
+                statusSub: "Drag to rotate 3D package in 360°. Hover callouts to inspect translated labels.",
+                statusBadge: "Verified Authentic"
+            },
+            es: {
+                material: "100% Cuero Vacuno Plena Flor de Toscana Certificado y Auténtico",
+                care: "Tratar únicamente con bálsamo neutro para cuero. No lavar con agua.",
+                auth: "Registro Artesanal Digital #IT-94821 validado con el contrato de fideicomiso",
+                statusHeading: "Malla espacial alineada (100% confianza de seguimiento)",
+                statusSub: "Arrastre para rotar el paquete 3D en 360°. Especificaciones traducidas.",
+                statusBadge: "Autenticidad Verificada"
+            },
+            ja: {
+                material: "トスカーナ産 認定100%最高級フルグレインカーフレザー（本革）",
+                care: "専用の保革クリームでお手入れしてください。水洗いは厳禁です。",
+                auth: "職人登録番号 #IT-94821 がエスクロー契約情報と完全に一致（照合完了）",
+                statusHeading: "空間3Dメッシュ追従中（トラッキング精度 100%）",
+                statusSub: "ドラッグしてパッケージを360度回転できます。製品仕様は自動翻訳済みです。",
+                statusBadge: "真正品認証済み"
+            }
+        };
+
+        function setARLanguage(lang) {
+            document.querySelectorAll('#arView .role-tab-btn').forEach(b => b.classList.remove('active'));
+            const btn = document.getElementById(`arLang${lang.charAt(0).toUpperCase() + lang.slice(1)}`);
+            if (btn) btn.classList.add('active');
+
+            const t = arTranslations[lang] || arTranslations.en;
+            document.getElementById('arTextMaterial').textContent = `"${t.material}"`;
+            document.getElementById('arTextCare').textContent = `"${t.care}"`;
+            document.getElementById('arTextAuth').textContent = `"${t.auth}"`;
+            document.getElementById('arStatusHeading').textContent = t.statusHeading;
+            document.getElementById('arStatusSub').textContent = t.statusSub;
+            document.getElementById('arStatusBadge').textContent = t.statusBadge;
+        }
+
+        function triggerARScan() {
+            const laser = document.getElementById('arLaser');
+            if (laser) laser.classList.add('scanning');
+            const heading = document.getElementById('arStatusHeading');
+            const sub = document.getElementById('arStatusSub');
+            if (heading) heading.textContent = "⚡ Scanning Spatial Surface & Cryptographic Tag...";
+            if (sub) sub.textContent = "Extracting microscopic leather grain and verifying digital provenance hash...";
+
+            setTimeout(() => {
+                if (laser) laser.classList.remove('scanning');
+                if (heading) heading.textContent = "✅ Spatial Mesh Aligned & Verified (100% Authenticity Confidence)";
+                if (sub) sub.textContent = "All physical specs and labels match agreed Escrow terms #GC-9821.";
+                document.getElementById('specCardMaterial')?.classList.add('highlight');
+                document.getElementById('specCardCare')?.classList.add('highlight');
+                document.getElementById('specCardAuth')?.classList.add('highlight');
+            }, 2500);
+        }
+
+        function reset3DCamera() {
+            if (arMeshGroup) {
+                arMeshGroup.rotation.set(0.15, -0.35, 0);
+            }
+        }
+
+        function initThreeAR() {
+            if (isARInitialized) return;
+            const canvas = document.getElementById('arCanvas');
+            const wrap = document.getElementById('arCanvasWrap');
+            if (!canvas || !wrap) return;
+
+            if (typeof THREE !== 'undefined') {
+                try {
+                    arScene = new THREE.Scene();
+                    const width = wrap.clientWidth || 600;
+                    const height = wrap.clientHeight || 440;
+                    arCamera = new THREE.PerspectiveCamera(40, width / height, 0.1, 1000);
+                    arCamera.position.set(0, 5, 175);
+
+                    arRenderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+                    arRenderer.setSize(width, height);
+                    arRenderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+
+                    arMeshGroup = new THREE.Group();
+
+                    // 3D Package Box representing certified luxury shipment
+                    const boxGeo = new THREE.BoxGeometry(64, 82, 42);
+                    const boxMat = new THREE.MeshStandardMaterial({
+                        color: 0x1a233a,
+                        roughness: 0.35,
+                        metalness: 0.55
+                    });
+                    const packageMesh = new THREE.Mesh(boxGeo, boxMat);
+                    arMeshGroup.add(packageMesh);
+
+                    // Wireframe Accent overlay
+                    const wireGeo = new THREE.EdgesGeometry(boxGeo);
+                    const wireMat = new THREE.LineBasicMaterial({ color: 0x3b82f6, linewidth: 2 });
+                    const wireMesh = new THREE.LineSegments(wireGeo, wireMat);
+                    arMeshGroup.add(wireMesh);
+
+                    // Glowing AR Reticle Ring
+                    const reticleGeo = new THREE.RingGeometry(68, 70, 48);
+                    const reticleMat = new THREE.MeshBasicMaterial({
+                        color: 0x38bdf8,
+                        side: THREE.DoubleSide,
+                        transparent: true,
+                        opacity: 0.55
+                    });
+                    arReticle = new THREE.Mesh(reticleGeo, reticleMat);
+                    arReticle.rotation.x = Math.PI / 2.3;
+                    arMeshGroup.add(arReticle);
+
+                    // Floating 3D Authenticity Seal Tag
+                    const sealGeo = new THREE.CylinderGeometry(8, 8, 2, 24);
+                    const sealMat = new THREE.MeshStandardMaterial({
+                        color: 0xd7a75b,
+                        metalness: 0.85,
+                        roughness: 0.2
+                    });
+                    const seal = new THREE.Mesh(sealGeo, sealMat);
+                    seal.position.set(16, 22, 22);
+                    seal.rotation.x = Math.PI / 2;
+                    arMeshGroup.add(seal);
+
+                    // Lighting
+                    const ambient = new THREE.AmbientLight(0xffffff, 0.7);
+                    arScene.add(ambient);
+
+                    const dirLight = new THREE.DirectionalLight(0x60a5fa, 1.2);
+                    dirLight.position.set(60, 80, 70);
+                    arScene.add(dirLight);
+
+                    const pointLight = new THREE.PointLight(0x0BC23E, 1.5, 200);
+                    pointLight.position.set(-50, -40, 50);
+                    arScene.add(pointLight);
+
+                    arMeshGroup.rotation.set(0.15, -0.35, 0);
+                    arScene.add(arMeshGroup);
+
+                    // Drag to rotate listeners
+                    canvas.addEventListener('pointerdown', (e) => {
+                        isPointerDown = true;
+                        previousPointerPosition = { x: e.clientX, y: e.clientY };
+                    });
+
+                    window.addEventListener('pointerup', () => { isPointerDown = false; });
+
+                    window.addEventListener('pointermove', (e) => {
+                        if (!isPointerDown || !arMeshGroup) return;
+                        const deltaX = e.clientX - previousPointerPosition.x;
+                        const deltaY = e.clientY - previousPointerPosition.y;
+                        arMeshGroup.rotation.y += deltaX * 0.01;
+                        arMeshGroup.rotation.x += deltaY * 0.01;
+                        previousPointerPosition = { x: e.clientX, y: e.clientY };
+                    });
+
+                    // Resize observer
+                    window.addEventListener('resize', () => {
+                        if (!arCamera || !arRenderer || !wrap) return;
+                        const w = wrap.clientWidth;
+                        const h = wrap.clientHeight;
+                        if (w && h) {
+                            arCamera.aspect = w / h;
+                            arCamera.updateProjectionMatrix();
+                            arRenderer.setSize(w, h);
+                        }
+                    });
+
+                    function renderLoop() {
+                        requestAnimationFrame(renderLoop);
+                        if (!isPointerDown && arMeshGroup) {
+                            arMeshGroup.rotation.y += 0.003;
+                        }
+                        if (arReticle) {
+                            arReticle.rotation.z -= 0.006;
+                        }
+                        arRenderer.render(arScene, arCamera);
+                    }
+                    renderLoop();
+                    isARInitialized = true;
+                    return;
+                } catch (e) {
+                    console.warn("Three.js WebGL init error, fallback to 2D:", e);
+                }
+            }
+
+            // 2D Canvas Fallback
+            const ctx = canvas.getContext('2d');
+            if (ctx) {
+                canvas.width = wrap.clientWidth || 600;
+                canvas.height = wrap.clientHeight || 440;
+                let angle = 0;
+                function render2DFallback() {
+                    requestAnimationFrame(render2DFallback);
+                    angle += 0.015;
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    const cx = canvas.width / 2;
+                    const cy = canvas.height / 2;
+                    ctx.save();
+                    ctx.translate(cx, cy);
+                    ctx.strokeStyle = '#3b82f6';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(-60 + Math.sin(angle)*5, -80, 120, 160);
+                    ctx.fillStyle = '#1e293b';
+                    ctx.fillRect(-55 + Math.sin(angle)*5, -75, 110, 150);
+                    ctx.fillStyle = '#93c5fd';
+                    ctx.font = '12px sans-serif';
+                    ctx.fillText("AR 3D Model", -38, 0);
+                    ctx.restore();
+                }
+                render2DFallback();
+                isARInitialized = true;
+            }
         }
 
         initializeWorkspace();

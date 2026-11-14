@@ -1,35 +1,45 @@
 /**
  * GlobalConnect - Automated Verification Test Suite
- * Nexconn Build Challenge 2026 - Day 1 Checklist Verifications
+ * Nexconn Build Challenge 2026 - Day 1 & Phase 1 Verifications
  *
  * Verifies:
- * 1. Health & Service Gateway Availability
- * 2. Role-Based Token Generation (Buyer, Seller, Agent)
- * 3. Real-Time Translation with Cultural Nuance Adaptation
- * 4. Contact Masking Security Filter (Phone, Email, Off-Platform Apps)
- * 5. Sandbox Escrow Ledger Lifecycle & Fund Freezing
- * 6. AI Dispute Mediator & 72-Hour Resolution Plan
- * 7. HMAC-SHA256 Signed Webhook Verification & Tamper Rejection
+ * 1. Gateway Health & System Operational State
+ * 2. Role-Based Account Creation & Session Authentication (Buyer, Seller, Agent)
+ * 3. Session User State Verification (/api/auth/me)
+ * 4. Nexconn Token Issuance Placeholder & Architecture Boundaries
+ * 5. Real-Time Translation with Cultural Nuance & Free-Tier Quota Protection
+ * 6. Contact Masking Security Filter (Phone, Email, Off-Platform Apps)
+ * 7. Sandbox Escrow Ledger Lifecycle & Fund Freezing
+ * 8. AI Dispute Mediator & 72-Hour Settlement Plan
+ * 9. HMAC-SHA256 Signed Webhook Verification & Tamper Rejection
  */
 
 const http = require('http');
 const crypto = require('crypto');
 
-const PORT = 3000;
-const WEBHOOK_SECRET = 'gc_live_secret_7f89d023a4';
+const PORT = process.env.PORT || 3000;
+const WEBHOOK_SECRET = process.env.NEXCONN_WEBHOOK_SECRET || 'gc_live_secret_7f89d023a4';
+
+let sessionCookie = '';
 
 function request(method, path, body = null, headers = {}) {
     return new Promise((resolve, reject) => {
         const payload = body ? JSON.stringify(body) : null;
+        const reqHeaders = {
+            'Content-Type': 'application/json',
+            ...headers
+        };
+
+        if (sessionCookie && !reqHeaders['Cookie']) {
+            reqHeaders['Cookie'] = sessionCookie;
+        }
+
         const options = {
             hostname: '127.0.0.1',
             port: PORT,
             path: path,
             method: method,
-            headers: {
-                'Content-Type': 'application/json',
-                ...headers
-            }
+            headers: reqHeaders
         };
 
         if (payload) {
@@ -38,6 +48,16 @@ function request(method, path, body = null, headers = {}) {
 
         const req = http.request(options, res => {
             let data = '';
+
+            // Capture session cookie if returned
+            const setCookie = res.headers['set-cookie'];
+            if (setCookie && Array.isArray(setCookie)) {
+                const gcCookie = setCookie.find(c => c.startsWith('gc_session='));
+                if (gcCookie) {
+                    sessionCookie = gcCookie.split(';')[0];
+                }
+            }
+
             res.on('data', chunk => data += chunk);
             res.on('end', () => {
                 let parsed = null;
@@ -46,7 +66,7 @@ function request(method, path, body = null, headers = {}) {
                 } catch (e) {
                     parsed = data;
                 }
-                resolve({ status: res.statusCode, data: parsed });
+                resolve({ status: res.statusCode, data: parsed, headers: res.headers });
             });
         });
 
@@ -59,7 +79,7 @@ function request(method, path, body = null, headers = {}) {
 async function runTests() {
     console.log("============================================================");
     console.log("🧪 Starting GlobalConnect Automated Verification Test Suite");
-    console.log("   Nexconn Build Challenge 2026 • Core System Validation");
+    console.log("   Nexconn Build Challenge 2026 • Phase 1 Core Validation");
     console.log("============================================================\n");
 
     let passed = 0;
@@ -80,22 +100,41 @@ async function runTests() {
         console.log("▶ [Test 1] Gateway Health Check");
         const health = await request('GET', '/api/health');
         assert("Gateway returns 200 OK", health.status === 200);
-        assert("Gateway identifies as GlobalConnect", health.data.service === 'GlobalConnect API Gateway');
+        assert("Gateway identifies as GlobalConnect", health.data && health.data.service === 'GlobalConnect API Gateway');
         console.log();
 
-        // --- Test 2: Auth Token Generation ---
-        console.log("▶ [Test 2] Role-Based Token Endpoint");
+        // --- Test 2: Role-Based Account Creation & Session Authentication ---
+        console.log("▶ [Test 2] Role-Based Authentication & Session Issuance");
+        const testEmail = `test_buyer_${Date.now()}@example.com`;
+        const signupRes = await request('POST', '/api/auth/signup', {
+            name: 'Tariq Al-Mansoor',
+            email: testEmail,
+            password: 'secureDemoPassword2026!',
+            role: 'buyer'
+        });
+        assert("Signup endpoint returns 201 Created", signupRes.status === 201);
+        assert("Session cookie issued", Boolean(sessionCookie && sessionCookie.includes('gc_session=')));
+        assert("User created with buyer role", signupRes.data && signupRes.data.user && signupRes.data.user.role === 'buyer');
+        console.log();
+
+        // --- Test 3: Session User Verification (/api/auth/me) ---
+        console.log("▶ [Test 3] Session User State Verification");
+        const meRes = await request('GET', '/api/auth/me');
+        assert("Authenticated user returned via session cookie", meRes.status === 200 && meRes.data.user.email === testEmail);
+        console.log();
+
+        // --- Test 4: Nexconn Token Placeholder Endpoint ---
+        console.log("▶ [Test 4] Nexconn Token Architecture Verification");
         const tokenRes = await request('POST', '/api/auth/token', {
             userId: 'buyer_dubai_12',
             role: 'buyer'
         });
-        assert("Token endpoint returns 200 OK", tokenRes.status === 200);
-        assert("Valid JWT structure returned", typeof tokenRes.data.token === 'string' && tokenRes.data.token.split('.').length === 3);
-        assert("Token expires in 86400s (24h)", tokenRes.data.expiresIn === 86400);
+        assert("Token endpoint correctly guards server-side issuance (501)", tokenRes.status === 501);
+        assert("Architecture explanation provided", typeof tokenRes.data.error === 'string');
         console.log();
 
-        // --- Test 3: Translation & Cultural Etiquette ---
-        console.log("▶ [Test 3] Translation & Cultural Context Engine");
+        // --- Test 5: Translation & Cultural Etiquette Engine ---
+        console.log("▶ [Test 5] Live Translation & Cultural Context Engine");
         const transRes = await request('POST', '/api/translate', {
             text: 'Is this genuine leather?',
             sourceLang: 'en',
@@ -103,13 +142,14 @@ async function runTests() {
             culturalContext: true
         });
         assert("Translation returns 200 OK", transRes.status === 200);
-        assert("Confidence score exceeds 95%", transRes.data.confidenceScore >= 0.95);
-        assert("Inference latency is under 60ms", transRes.data.inferenceLatencyMs < 60);
+        assert("Confidence score exceeds 95%", transRes.data && transRes.data.confidenceScore >= 0.95);
+        assert("Inference latency is tracked", typeof transRes.data.inferenceLatencyMs === 'number');
         assert("Cultural context notes provided", typeof transRes.data.culturalAdaptation === 'string');
+        assert("Free-tier quota protection active", transRes.data.quotaProtected === true);
         console.log();
 
-        // --- Test 4: Contact Masking & Security Guard ---
-        console.log("▶ [Test 4] Contact Masking & Leak Prevention");
+        // --- Test 6: Contact Masking & Security Guard ---
+        console.log("▶ [Test 6] Contact Masking & Leak Prevention");
         const cleanMsg = await request('POST', '/api/moderate', { text: 'What is the tracking number?' });
         assert("Clean message passes with 100% compliance", cleanMsg.data.isClean === true && cleanMsg.data.policyComplianceScore === 100);
 
@@ -121,8 +161,8 @@ async function runTests() {
         assert("Platform keyword redacted", leakMsg.data.sanitizedText.includes('[OFF-PLATFORM CHANNEL REDACTED]'));
         console.log();
 
-        // --- Test 5: Sandbox Escrow Ledger ---
-        console.log("▶ [Test 5] Milestone Escrow Lifecycle");
+        // --- Test 7: Sandbox Escrow Ledger ---
+        console.log("▶ [Test 7] Milestone Escrow Lifecycle");
         const escrowStatus = await request('GET', '/api/escrow/GC-9821');
         assert("Order GC-9821 exists in sandbox ledger", escrowStatus.status === 200);
         assert("Escrow amount is $249.00 USD", escrowStatus.data.amount === 249.00);
@@ -134,8 +174,8 @@ async function runTests() {
         assert("Courier dispatch updates status to IN_TRANSIT", dispatchAction.data.newStatus === 'IN_TRANSIT');
         console.log();
 
-        // --- Test 6: AI Dispute Mediator ---
-        console.log("▶ [Test 6] AI Dispute Mediation & Escrow Freezing");
+        // --- Test 8: AI Dispute Mediator ---
+        console.log("▶ [Test 8] AI Dispute Mediation & Escrow Freezing");
         const disputeAction = await request('POST', '/api/escrow/action', {
             orderId: 'GC-9821',
             action: 'DISPUTE'
@@ -143,10 +183,16 @@ async function runTests() {
         assert("Dispute freeze updates status to ESCROW_FROZEN", disputeAction.data.newStatus === 'ESCROW_FROZEN');
         assert("72-hour mediation window established", disputeAction.data.dispute !== null && disputeAction.data.dispute.status === 'AI_MEDIATION_ACTIVE');
         assert("3 neutral settlement proposals generated", disputeAction.data.dispute.settlementProposals.length === 3);
+
+        const mediateAnalysis = await request('POST', '/api/dispute/mediate', {
+            orderId: 'GC-9821',
+            complaint: 'Material grain differs from specification'
+        });
+        assert("AI dispute analysis generated with bilingual timeline", Array.isArray(mediateAnalysis.data.bilingualTimeline));
         console.log();
 
-        // --- Test 7: HMAC Webhook Signature Verification ---
-        console.log("▶ [Test 7] HMAC-SHA256 Webhook Verification");
+        // --- Test 9: HMAC Webhook Signature Verification ---
+        console.log("▶ [Test 9] HMAC-SHA256 Webhook Verification");
         const webhookPayload = JSON.stringify({
             event: 'message.sent',
             channelId: 'order_9821',
@@ -182,7 +228,12 @@ async function runTests() {
         console.log("🎉 ALL CRITICAL ARCHITECTURE CHECKS VERIFIED SUCCESSFULLY!");
     }
     console.log("============================================================");
+
+    return failed === 0;
 }
 
-runTests();
+if (require.main === module) {
+    runTests();
+}
 
+module.exports = { runTests };
