@@ -246,6 +246,28 @@ async function runTests() {
         assert("Tampered signature rejected (403 Forbidden)", tamperedWebhook.status === 403);
         console.log();
 
+        // --- Test 12: Real-Time Marketplace Analytics & Security Audit Metrics ---
+        // Tier 2 #14 (Real-Time Metrics & Security Audit Trail)
+        console.log("▶ [Test 12] Real-Time Marketplace Analytics & Security Audit Metrics (Tier 2 #14)");
+        const metricsRes = await request('GET', '/api/analytics/metrics');
+        assert("Marketplace analytics endpoint returns 200 OK", metricsRes.status === 200);
+        assert("Summary KPIs contain calculated dispute reduction", typeof metricsRes.data.summary.disputeReductionPercentage === 'number');
+        assert("Off-platform leaks blocked counter is tracked", typeof metricsRes.data.summary.offPlatformLeaksBlocked === 'number' && metricsRes.data.summary.offPlatformLeaksBlocked >= 1428);
+        assert("AI inference latency calculated under 60ms target", typeof metricsRes.data.summary.aiInferenceLatencyMs === 'number' && metricsRes.data.summary.aiInferenceLatencyMs < 60);
+        assert("Escrow volume calculated across orders", typeof metricsRes.data.escrow.totalEscrowVolumeUSD === 'number' && metricsRes.data.escrow.totalEscrowVolumeUSD >= 669.00);
+        assert("Cross-border language distribution tracked", Array.isArray(metricsRes.data.languages) && metricsRes.data.languages.length === 4);
+        assert("Security audit trail populated with risk severity", Array.isArray(metricsRes.data.securityAuditTrail) && metricsRes.data.securityAuditTrail.length >= 1);
+
+        // Verification of live telemetry increment when a leak is intercepted
+        const initialLeaks = metricsRes.data.summary.offPlatformLeaksBlocked;
+        await request('POST', '/api/channels/GC-9821/messages', {
+            text: 'Call me on WhatsApp at +1-555-882-9102 right now to discuss wire payment'
+        });
+        const updatedMetricsRes = await request('GET', '/api/analytics/metrics');
+        assert("Off-platform leaks counter dynamically incremented on interception", updatedMetricsRes.data.summary.offPlatformLeaksBlocked > initialLeaks);
+        assert("New security event appended to top of audit trail", updatedMetricsRes.data.securityAuditTrail[0].channel === 'GC-9821');
+        console.log();
+
     } catch (err) {
         console.error("Test execution failed with error:", err);
         failed++;

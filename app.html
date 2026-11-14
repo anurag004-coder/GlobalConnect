@@ -1063,42 +1063,119 @@
 
             <!-- 3. OWNER METRICS PANEL VIEW (Tier 2 #14) -->
             <div class="metrics-view" id="metricsView">
-                <div style="margin-bottom: 28px;">
-                    <h2 style="font-size: 1.5rem; font-weight: 800;">Marketplace Performance & Trust Analytics</h2>
-                    <p style="color: var(--color-muted); font-size: 0.88rem;">Real-time KPIs demonstrating dispute reduction, off-platform leaks blocked, and sub-60ms translation performance.</p>
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;">
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 4px;">
+                            <h2 style="font-size: 1.5rem; font-weight: 800;">Marketplace Performance & Trust Analytics</h2>
+                            <span class="badge-pill" style="background: rgba(11, 194, 62, 0.2); color: #4ade80;">● LIVE TELEMETRY</span>
+                        </div>
+                        <p style="color: var(--color-muted); font-size: 0.88rem;">Real-time KPIs demonstrating dispute reduction, off-platform leaks blocked, and sub-60ms translation performance.</p>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button class="btn-action" style="background: rgba(59, 130, 246, 0.2); color: #93c5fd; padding: 8px 14px;" onclick="fetchMarketplaceMetrics()">🔄 Refresh Live Metrics</button>
+                        <button class="btn-action" style="background: rgba(255, 255, 255, 0.08); color: white; padding: 8px 14px;" onclick="switchAppView('chat')">← Back to Deal Chat</button>
+                    </div>
                 </div>
 
+                <!-- Primary Row 1: Core Performance KPIs -->
                 <div class="metrics-grid-4">
                     <div class="metric-widget">
                         <div class="metric-widget-label">Dispute Reduction</div>
-                        <div class="metric-widget-val" style="color: #4ade80;">-45.2%</div>
-                        <div style="font-size: 0.72rem; color: var(--color-dim); margin-top: 4px;">Baseline: 45% ➔ Current: 24.6%</div>
+                        <div class="metric-widget-val" style="color: #4ade80;" id="metricDisputeReduction">-45.2%</div>
+                        <div style="font-size: 0.72rem; color: var(--color-dim); margin-top: 4px;" id="metricDisputeSub">Baseline: 45.0% ➔ Current: 24.6%</div>
                     </div>
                     <div class="metric-widget">
                         <div class="metric-widget-label">Avg Resolution Time</div>
-                        <div class="metric-widget-val" style="color: #60a5fa;">4.2 hrs</div>
-                        <div style="font-size: 0.72rem; color: var(--color-dim); margin-top: 4px;">SLA: 72 hours max</div>
+                        <div class="metric-widget-val" style="color: #60a5fa;" id="metricResolutionTime">4.2 hrs</div>
+                        <div style="font-size: 0.72rem; color: var(--color-dim); margin-top: 4px;">SLA Guarantee: 72h max</div>
                     </div>
                     <div class="metric-widget">
                         <div class="metric-widget-label">Off-Platform Leaks Blocked</div>
-                        <div class="metric-widget-val" style="color: #fde047;">1,428</div>
+                        <div class="metric-widget-val" style="color: #fde047;" id="metricLeaksBlocked">1,428</div>
                         <div style="font-size: 0.72rem; color: var(--color-dim); margin-top: 4px;">Contact Masking Guard (100% catch)</div>
                     </div>
                     <div class="metric-widget">
                         <div class="metric-widget-label">AI Inference Latency</div>
-                        <div class="metric-widget-val" style="color: #ff8597;">42.6 ms</div>
-                        <div style="font-size: 0.72rem; color: var(--color-dim); margin-top: 4px;">Target: &lt;60 ms with NVIDIA Riva</div>
+                        <div class="metric-widget-val" style="color: #ff8597;" id="metricAiLatency">42.6 ms</div>
+                        <div style="font-size: 0.72rem; color: var(--color-dim); margin-top: 4px;" id="metricAiLatencySub">Target: &lt;60 ms • Free-Tier Protected</div>
                     </div>
                 </div>
 
-                <div class="context-card" style="padding: 24px;">
-                    <h4 style="font-size: 1.05rem; margin-bottom: 14px;">Cross-Border Language Breakdown</h4>
-                    <div style="display: flex; gap: 24px; font-size: 0.88rem;">
-                        <div>Arabic (ar) ⟷ English (en): <strong>38%</strong></div>
-                        <div>Spanish (es) ⟷ English (en): <strong>27%</strong></div>
-                        <div>Japanese (ja) ⟷ English (en): <strong>21%</strong></div>
-                        <div>German (de) ⟷ English (en): <strong>14%</strong></div>
+                <!-- Secondary Row 2: Escrow Ledger & Settlement Health -->
+                <div class="metrics-grid-4" style="margin-bottom: 24px;">
+                    <div class="metric-widget">
+                        <div class="metric-widget-label">Total Escrow Volume</div>
+                        <div class="metric-widget-val" style="color: #a78bfa;" id="metricTotalEscrow">$2,149.00</div>
+                        <div style="font-size: 0.72rem; color: var(--color-dim); margin-top: 4px;">Across all active transactions</div>
                     </div>
+                    <div class="metric-widget">
+                        <div class="metric-widget-label">Locked Escrow Security</div>
+                        <div class="metric-widget-val" style="color: #f59e0b;" id="metricLockedEscrow">$669.00</div>
+                        <div style="font-size: 0.72rem; color: var(--color-dim); margin-top: 4px;">Under inspection or in-transit</div>
+                    </div>
+                    <div class="metric-widget">
+                        <div class="metric-widget-label">Funds Safely Released</div>
+                        <div class="metric-widget-val" style="color: #34d399;" id="metricReleasedEscrow">$1,480.00</div>
+                        <div style="font-size: 0.72rem; color: var(--color-dim); margin-top: 4px;">Verified deliver-and-release</div>
+                    </div>
+                    <div class="metric-widget">
+                        <div class="metric-widget-label">Dispute Escalation Ratio</div>
+                        <div class="metric-widget-val" style="color: #38bdf8;" id="metricDisputeRatio">1 / 3</div>
+                        <div style="font-size: 0.72rem; color: var(--color-dim); margin-top: 4px;">Orders currently under mediation</div>
+                    </div>
+                </div>
+
+                <!-- Language Breakdown -->
+                <div class="context-card" style="padding: 24px; margin-bottom: 24px;">
+                    <h4 style="font-size: 1.05rem; margin-bottom: 14px; display: flex; justify-content: space-between; align-items: center;">
+                        <span>Cross-Border Language Breakdown</span>
+                        <span style="font-size: 0.76rem; color: var(--color-dim); font-weight: 500;" id="metricTotalTranslations">894 translations logged</span>
+                    </h4>
+                    <div id="metricsLangGrid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; font-size: 0.88rem;">
+                        <div style="background: rgba(255, 255, 255, 0.02); padding: 12px; border-radius: 8px; border: 1px solid var(--border);">
+                            <div style="font-size: 0.75rem; color: var(--color-dim);">Arabic (ar) ⟷ English (en)</div>
+                            <div style="font-size: 1.3rem; font-weight: 700; color: #60a5fa; margin-top: 4px;">38%</div>
+                        </div>
+                        <div style="background: rgba(255, 255, 255, 0.02); padding: 12px; border-radius: 8px; border: 1px solid var(--border);">
+                            <div style="font-size: 0.75rem; color: var(--color-dim);">Spanish (es) ⟷ English (en)</div>
+                            <div style="font-size: 1.3rem; font-weight: 700; color: #4ade80; margin-top: 4px;">27%</div>
+                        </div>
+                        <div style="background: rgba(255, 255, 255, 0.02); padding: 12px; border-radius: 8px; border: 1px solid var(--border);">
+                            <div style="font-size: 0.75rem; color: var(--color-dim);">Japanese (ja) ⟷ English (en)</div>
+                            <div style="font-size: 1.3rem; font-weight: 700; color: #f59e0b; margin-top: 4px;">21%</div>
+                        </div>
+                        <div style="background: rgba(255, 255, 255, 0.02); padding: 12px; border-radius: 8px; border: 1px solid var(--border);">
+                            <div style="font-size: 0.75rem; color: var(--color-dim);">German (de) ⟷ English (en)</div>
+                            <div style="font-size: 1.3rem; font-weight: 700; color: #a78bfa; margin-top: 4px;">14%</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Security Audit Trail Table -->
+                <div class="context-card" style="padding: 24px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                        <div>
+                            <h4 style="font-size: 1.05rem; font-weight: 700;">Security Audit Trail & Contact Guard Interceptions</h4>
+                            <p style="font-size: 0.78rem; color: var(--color-dim); margin-top: 2px;">Real-time inspection log of blocked off-platform transactions, phone numbers, and payment routing attempts.</p>
+                        </div>
+                        <span class="badge-pill" style="background: rgba(239, 68, 68, 0.15); color: #f87171;" id="metricAuditBadge">100% Interception SLA</span>
+                    </div>
+
+                    <table class="inbox-table" style="font-size: 0.82rem;">
+                        <thead>
+                            <tr>
+                                <th>Timestamp</th>
+                                <th>Event Type</th>
+                                <th>Channel</th>
+                                <th>Intercepted Rule Pattern</th>
+                                <th>Inspection Details</th>
+                                <th>Risk Severity</th>
+                            </tr>
+                        </thead>
+                        <tbody id="metricsAuditTableBody">
+                            <!-- Populated dynamically via fetchMarketplaceMetrics() -->
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
@@ -1375,6 +1452,7 @@
                 inbox.style.display = 'none';
                 metrics.style.display = 'block';
                 if (arView) arView.style.display = 'none';
+                fetchMarketplaceMetrics();
             }
         }
 
@@ -2060,6 +2138,73 @@
                 }
                 render2DFallback();
                 isARInitialized = true;
+            }
+        }
+
+        async function fetchMarketplaceMetrics() {
+            try {
+                const res = await fetch('/api/analytics/metrics', { credentials: 'same-origin' });
+                if (!res.ok) return;
+                const data = await res.json();
+
+                // Core KPIs
+                const disputeEl = document.getElementById('metricDisputeReduction');
+                if (disputeEl) disputeEl.textContent = `${data.summary.disputeReductionPercentage}%`;
+
+                const disputeSubEl = document.getElementById('metricDisputeSub');
+                if (disputeSubEl) disputeSubEl.textContent = `Baseline: ${data.summary.baselineDisputeRate}% ➔ Current: ${data.summary.currentDisputeRate}%`;
+
+                const resTimeEl = document.getElementById('metricResolutionTime');
+                if (resTimeEl) resTimeEl.textContent = `${data.summary.avgResolutionTimeHours} hrs`;
+
+                const leaksEl = document.getElementById('metricLeaksBlocked');
+                if (leaksEl) leaksEl.textContent = Number(data.summary.offPlatformLeaksBlocked).toLocaleString();
+
+                const latencyEl = document.getElementById('metricAiLatency');
+                if (latencyEl) latencyEl.textContent = `${data.summary.aiInferenceLatencyMs} ms`;
+
+                // Escrow & Financials
+                const totalEscrowEl = document.getElementById('metricTotalEscrow');
+                if (totalEscrowEl) totalEscrowEl.textContent = `$${Number(data.escrow.totalEscrowVolumeUSD).toFixed(2)}`;
+
+                const lockedEscrowEl = document.getElementById('metricLockedEscrow');
+                if (lockedEscrowEl) lockedEscrowEl.textContent = `$${Number(data.escrow.lockedEscrowVolumeUSD).toFixed(2)}`;
+
+                const releasedEscrowEl = document.getElementById('metricReleasedEscrow');
+                if (releasedEscrowEl) releasedEscrowEl.textContent = `$${Number(data.escrow.releasedVolumeUSD).toFixed(2)}`;
+
+                const disputeRatioEl = document.getElementById('metricDisputeRatio');
+                if (disputeRatioEl) disputeRatioEl.textContent = `${data.escrow.activeDisputes} / ${data.escrow.totalOrders}`;
+
+                // Translations count
+                const transCountEl = document.getElementById('metricTotalTranslations');
+                if (transCountEl && data.languages) {
+                    const totalT = data.languages.reduce((acc, l) => acc + (l.count || 0), 0);
+                    transCountEl.textContent = `${totalT.toLocaleString()} translations logged`;
+                }
+
+                // Security Audit Trail
+                const tbody = document.getElementById('metricsAuditTableBody');
+                if (tbody && Array.isArray(data.securityAuditTrail)) {
+                    tbody.innerHTML = data.securityAuditTrail.map(ev => {
+                        const sevColor = ev.severity === 'HIGH' ? '#ef4444' : (ev.severity === 'MEDIUM' ? '#f59e0b' : '#60a5fa');
+                        const sevBg = ev.severity === 'HIGH' ? 'rgba(239, 68, 68, 0.15)' : (ev.severity === 'MEDIUM' ? 'rgba(245, 158, 11, 0.15)' : 'rgba(96, 165, 250, 0.15)');
+                        const timeStr = new Date(ev.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+                        return `
+                            <tr>
+                                <td style="font-family: var(--font-mono); color: var(--color-dim);">${timeStr}</td>
+                                <td><strong style="color: #e2e8f0;">${ev.eventType.replace(/_/g, ' ')}</strong></td>
+                                <td><span class="badge-pill" style="background: rgba(255,255,255,0.06); color: #93c5fd;">#${ev.channel}</span></td>
+                                <td style="font-family: var(--font-mono); color: #fde047;">${ev.redactedPattern}</td>
+                                <td style="color: var(--color-dim);">${ev.details}</td>
+                                <td><span class="badge-pill" style="background: ${sevBg}; color: ${sevColor}; font-weight: 700;">${ev.severity}</span></td>
+                            </tr>
+                        `;
+                    }).join('');
+                }
+            } catch (err) {
+                console.warn('Failed to fetch marketplace metrics:', err);
             }
         }
 

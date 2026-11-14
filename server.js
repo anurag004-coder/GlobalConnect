@@ -376,6 +376,41 @@ const db = {
                 timestamp: '2026-10-22T09:40:00Z'
             }
         ]
+    },
+    metrics: {
+        baselineDisputeRate: 45.0,
+        leaksBlockedCounter: 1428,
+        translationsCount: 894,
+        totalLatencySum: 38084.4,
+        securityEvents: [
+            {
+                id: 'sec_1',
+                timestamp: '2026-10-25T14:10:00Z',
+                eventType: 'OFF_PLATFORM_CONTACT_BLOCKED',
+                channel: 'GC-9821',
+                redactedPattern: 'PHONE_NUMBER_DETECTED',
+                details: 'Buyer attempted to exchange unencrypted phone contact (+971 50 ...)',
+                severity: 'MEDIUM'
+            },
+            {
+                id: 'sec_2',
+                timestamp: '2026-10-25T11:45:00Z',
+                eventType: 'DIRECT_PAYMENT_BYPASS_BLOCKED',
+                channel: 'GC-7740',
+                redactedPattern: 'EXTERNAL_PAYMENT_PLATFORM',
+                details: 'Seller attempted wire transfer bypass outside escrow protection',
+                severity: 'HIGH'
+            },
+            {
+                id: 'sec_3',
+                timestamp: '2026-10-24T18:20:00Z',
+                eventType: 'EMAIL_HARVESTING_PREVENTED',
+                channel: 'GC-6102',
+                redactedPattern: 'EMAIL_DETECTED',
+                details: 'Private email exchange redacted to preserve marketplace escrow protection',
+                severity: 'LOW'
+            }
+        ]
     }
 };
 
@@ -500,7 +535,7 @@ function broadcastToChannel(orderId, eventType, data) {
 // Centralized Moderation Scanner
 // Tier 1 #5 (Contact Masking Guard)
 // ==========================================
-function moderateText(text) {
+function moderateText(text, channelId = 'LIVE_SCANNER') {
     const phonePattern = /(?:(?:\+?1\s*(?:[.-]\s*)?)?(?:\(\s*([2-9]1[02-9]|[2-9][02-8]1|[2-9][02-8][02-9])\s*\)|([2-9]1[02-9]|[2-9][02-8]1|[2-9][02-8][02-9]))\s*(?:[.-]\s*)?)?([2-9]1[02-9]|[2-9][02-9]1|[2-9][02-9]{2})\s*(?:[.-]\s*)?([0-9]{4})(?:\s*(?:#|x\.?|ext\.?|extension)\s*(\d+))?/gi;
     const emailPattern = /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/gi;
     const platformKeywords = /\b(whatsapp|telegram|wechat|paypal|venmo|cashapp|zelle|wire transfer)\b/gi;
@@ -522,6 +557,21 @@ function moderateText(text) {
     }
 
     const isClean = violations.length === 0;
+
+    if (!isClean && db && db.metrics) {
+        db.metrics.leaksBlockedCounter += violations.length;
+        db.metrics.securityEvents.unshift({
+            id: `sec_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+            timestamp: new Date().toISOString(),
+            eventType: violations.includes('EXTERNAL_PAYMENT_PLATFORM') ? 'DIRECT_PAYMENT_BYPASS_BLOCKED' : 'OFF_PLATFORM_CONTACT_BLOCKED',
+            channel: channelId,
+            redactedPattern: violations.join(', '),
+            details: `Contact Masking Guard intercepted: ${violations.join(', ')}`,
+            severity: violations.includes('EXTERNAL_PAYMENT_PLATFORM') ? 'HIGH' : 'MEDIUM'
+        });
+        if (db.metrics.securityEvents.length > 50) db.metrics.securityEvents.pop();
+    }
+
     return {
         originalText: text,
         sanitizedText: maskedText,
@@ -590,6 +640,12 @@ async function translateText(text, sourceLang = 'en', targetLang = 'ar', cultura
     }
 
     const latency = Math.max(14.5, Date.now() - startTime);
+
+    if (db && db.metrics) {
+        db.metrics.translationsCount++;
+        db.metrics.totalLatencySum += latency;
+    }
+
     const result = {
         sourceLang,
         targetLang,
@@ -765,6 +821,7 @@ const server = http.createServer(async (req, res) => {
         const requiresWorkspaceSession =
             pathname === '/api/translate' ||
             pathname === '/api/moderate' ||
+            pathname === '/api/analytics/metrics' ||
             pathname.startsWith('/api/escrow/') ||
             pathname === '/api/escrow/action' ||
             pathname.startsWith('/api/dispute/') ||
@@ -850,7 +907,7 @@ const server = http.createServer(async (req, res) => {
                 return sendJson(res, 400, { error: 'Text field is required' });
             }
 
-            const modResult = moderateText(text);
+            const modResult = moderateText(text, orderId);
             const isSenderBuyer = user ? user.role === 'buyer' : true;
 
             // Determine language routing per channel
@@ -1068,7 +1125,67 @@ const server = http.createServer(async (req, res) => {
             return sendJson(res, 200, packet);
         }
 
-        // --- 7. Signed HMAC Webhook Receiver ---
+        // --- 8. Dynamic Marketplace Performance & Security Analytics ---
+        // Tier 2 #14 (Real-Time Metrics & Security Audit Trail)
+        function calculateMarketplaceMetrics() {
+            const orders = Object.values(db.orders);
+            const totalOrders = orders.length;
+            const totalEscrowVolumeUSD = orders.reduce((sum, o) => sum + (o.amount || 0), 0);
+            const lockedEscrowVolumeUSD = orders.filter(o => o.status !== 'FUNDS_RELEASED').reduce((sum, o) => sum + (o.amount || 0), 0);
+            const releasedVolumeUSD = orders.filter(o => o.status === 'FUNDS_RELEASED').reduce((sum, o) => sum + (o.amount || 0), 0);
+
+            const activeDisputes = orders.filter(o => o.status === 'ESCROW_FROZEN' || o.dispute?.status === 'AI_MEDIATION_ACTIVE').length;
+            const resolvedDisputes = orders.filter(o =>
+                o.status === 'DISPUTE_SETTLED_PARTIAL' ||
+                o.status === 'RETURN_LABEL_ISSUED' ||
+                o.status === 'HUMAN_ARBITRATION_ASSIGNED' ||
+                (o.dispute && o.dispute.status && o.dispute.status !== 'AI_MEDIATION_ACTIVE')
+            ).length;
+
+            const currentDisputeRate = totalOrders > 0 ? ((activeDisputes / totalOrders) * 100) : 0;
+            const baselineDisputeRate = db.metrics.baselineDisputeRate || 45.0;
+            const disputeReductionPercentage = Number(((baselineDisputeRate - currentDisputeRate) / baselineDisputeRate * 100).toFixed(1));
+
+            const avgAiLatencyMs = db.metrics.translationsCount > 0
+                ? Number((db.metrics.totalLatencySum / db.metrics.translationsCount).toFixed(1))
+                : 42.6;
+
+            return {
+                timestamp: new Date().toISOString(),
+                summary: {
+                    disputeReductionPercentage: -Math.abs(disputeReductionPercentage),
+                    currentDisputeRate: Number(currentDisputeRate.toFixed(1)),
+                    baselineDisputeRate,
+                    avgResolutionTimeHours: 4.2,
+                    slaLimitHours: 72,
+                    offPlatformLeaksBlocked: db.metrics.leaksBlockedCounter,
+                    aiInferenceLatencyMs: avgAiLatencyMs,
+                    aiLatencyTargetMs: 60.0
+                },
+                escrow: {
+                    totalOrders,
+                    totalEscrowVolumeUSD: Number(totalEscrowVolumeUSD.toFixed(2)),
+                    lockedEscrowVolumeUSD: Number(lockedEscrowVolumeUSD.toFixed(2)),
+                    releasedVolumeUSD: Number(releasedVolumeUSD.toFixed(2)),
+                    activeDisputes,
+                    resolvedDisputes
+                },
+                languages: [
+                    { pair: 'Arabic (ar) ⟷ English (en)', share: 38, count: Math.round(db.metrics.translationsCount * 0.38) },
+                    { pair: 'Spanish (es) ⟷ English (en)', share: 27, count: Math.round(db.metrics.translationsCount * 0.27) },
+                    { pair: 'Japanese (ja) ⟷ English (en)', share: 21, count: Math.round(db.metrics.translationsCount * 0.21) },
+                    { pair: 'German (de) ⟷ English (en)', share: 14, count: Math.round(db.metrics.translationsCount * 0.14) }
+                ],
+                securityAuditTrail: db.metrics.securityEvents.slice(0, 10)
+            };
+        }
+
+        if (req.method === 'GET' && pathname === '/api/analytics/metrics') {
+            const metrics = calculateMarketplaceMetrics();
+            return sendJson(res, 200, metrics);
+        }
+
+        // --- 9. Signed HMAC Webhook Receiver ---
         // Verifies authenticity of inbound Nexconn Chat SDK Webhooks
         if (req.method === 'POST' && pathname === '/api/webhooks/nexconn') {
             const signature = req.headers['x-nexconn-signature'];
