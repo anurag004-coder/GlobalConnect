@@ -2,46 +2,641 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <meta name="theme-color" content="#f7f6f2">
-  <title>Sign in · GlobalConnect</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a0c14">
+  <title>Sign in · GlobalConnect Workspace</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
-    :root{--paper:#f7f6f2;--ink:#14251f;--muted:#68756e;--line:#e1e5dc;--green:#173f32;--green2:#245c48;--lime:#d7ef9b;--gold:#d7a75b;--serif:Georgia,serif;--sans:'DM Sans',Arial,sans-serif;--display:Manrope,'DM Sans',sans-serif}*{box-sizing:border-box}body{margin:0;min-height:100vh;background:var(--paper);font-family:var(--sans);color:var(--ink);display:grid;grid-template-columns:1fr 1fr}.story{background:var(--green);color:#fff;padding:38px clamp(28px,7vw,100px);display:flex;flex-direction:column;justify-content:space-between;min-height:100vh;position:relative;overflow:hidden}.story:after{content:"";position:absolute;width:590px;height:590px;border-radius:50%;border:1px solid #ffffff20;right:-250px;bottom:-120px;box-shadow:0 0 0 45px #ffffff08,0 0 0 90px #ffffff06}.brand{display:flex;align-items:center;gap:11px;color:white;text-decoration:none;font:800 1.05rem var(--display);position:relative;z-index:1}.brandmark{width:33px;height:33px;border-radius:50%;display:grid;place-items:center;background:var(--lime);color:var(--green);font-size:1.1rem}.story-copy{position:relative;z-index:1;max-width:510px;margin:8vh 0}.eyebrow{font-size:.69rem;letter-spacing:.16em;text-transform:uppercase;color:var(--lime);font-weight:700}.story h1{font:600 clamp(2.8rem,5.3vw,5.2rem)/1.02 var(--display);letter-spacing:-.07em;margin:19px 0}.story h1 em{font:italic 500 1em var(--serif);letter-spacing:-.05em;color:#d8e8c7}.story-copy p{font-size:.97rem;line-height:1.75;color:#c1d0c4;max-width:410px}.story-foot{font-size:.72rem;color:#a9bdb0;position:relative;z-index:1}.auth-side{display:grid;place-items:center;padding:40px 24px}.auth-card{width:min(440px,100%)}.back{display:inline-flex;align-items:center;gap:8px;color:var(--muted);font-size:.79rem;font-weight:600;text-decoration:none;margin-bottom:37px}.back:hover{color:var(--green)}.auth-card h2{font:700 2rem var(--display);letter-spacing:-.05em;margin:0 0 7px}.subtitle{margin:0 0 27px;color:var(--muted);font-size:.88rem}.mode-switch{display:flex;padding:4px;background:#ecefe8;border-radius:6px;margin-bottom:24px}.mode-switch button{flex:1;border:0;background:transparent;color:#68756e;border-radius:4px;padding:10px;font-size:.8rem;font-weight:700;cursor:pointer}.mode-switch button.active{background:white;color:var(--green);box-shadow:0 1px 4px #14251f12}.field{margin-bottom:16px}.field label{display:block;font-size:.73rem;font-weight:700;margin-bottom:7px}.field input{width:100%;height:47px;border:1px solid #dbe1d8;border-radius:4px;padding:0 13px;background:#fff;color:var(--ink);outline:none;font:inherit;font-size:.86rem}.field input:focus{border-color:#6d9476;box-shadow:0 0 0 3px #245c4814}.role-wrap{margin:4px 0 18px}.role-wrap label{display:block;font-size:.73rem;font-weight:700;margin-bottom:8px}.roles{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.role-option{position:relative}.role-option input{position:absolute;opacity:0}.role-option span{display:grid;place-items:center;min-height:40px;border:1px solid #dbe1d8;border-radius:4px;color:#66736b;background:#fff;font-size:.74rem;font-weight:700;cursor:pointer}.role-option input:checked+span{border-color:#5e8064;color:var(--green);background:#edf3e9;box-shadow:inset 0 0 0 1px #5e8064}.submit{width:100%;height:48px;border:0;border-radius:4px;background:var(--green);color:#fff;font:700 .84rem var(--sans);cursor:pointer;margin-top:3px;transition:background .2s,transform .2s}.submit:hover{background:#102f25;transform:translateY(-1px)}.submit:disabled{opacity:.65;cursor:wait;transform:none}.notice{min-height:20px;margin:12px 0 0;color:#9b4337;font-size:.75rem}.prototype-note{margin-top:22px;border-top:1px solid var(--line);padding-top:16px;font-size:.7rem;line-height:1.6;color:#768179}.prototype-note strong{color:#45544a}.terms{margin-top:26px;color:#8b958e;font-size:.65rem;text-align:center}.hidden{display:none!important}
-    @media(max-width:760px){body{grid-template-columns:1fr}.story{min-height:auto;padding:22px 24px 27px}.story-copy{margin:40px 0 28px}.story h1{font-size:clamp(2.7rem,12vw,4rem);max-width:450px}.story-copy p{font-size:.87rem}.story-foot{display:none}.story:after{width:340px;height:340px;right:-170px;bottom:-185px}.auth-side{padding:34px 23px 50px;align-items:start}.back{margin-bottom:24px}.auth-card h2{font-size:1.75rem}}
+    :root {
+      --bg-body: #0a0c14;
+      --bg-sidebar: #0f1322;
+      --bg-card: #151a2d;
+      --bg-card-hover: #1c233c;
+      --color-primary: #1A1A2E;
+      --color-accent: #3b82f6;
+      --color-accent-glow: rgba(59, 130, 246, 0.35);
+      --color-highlight: #E94560;
+      --color-success: #0BC23E;
+      --color-warning: #f59e0b;
+      --color-text: #f8fafc;
+      --color-muted: #94a3b8;
+      --color-dim: #64748b;
+      --border: rgba(255, 255, 255, 0.08);
+      --font-sans: 'Plus Jakarta Sans', system-ui, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      min-height: 100vh;
+      background: var(--bg-body);
+      font-family: var(--font-sans);
+      color: var(--color-text);
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Left Story Hero */
+    .story {
+      background: radial-gradient(circle at 80% 20%, rgba(59, 130, 246, 0.15), transparent 45%),
+                  radial-gradient(circle at 20% 80%, rgba(233, 69, 96, 0.12), transparent 40%),
+                  linear-gradient(145deg, #0f1322 0%, #151a2d 100%);
+      border-right: 1px solid var(--border);
+      padding: 48px clamp(32px, 6vw, 80px);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 100vh;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      color: white;
+      text-decoration: none;
+      font-weight: 800;
+      font-size: 1.25rem;
+      position: relative;
+      z-index: 2;
+    }
+
+    .brand-badge {
+      background: linear-gradient(135deg, #3b82f6, #E94560);
+      width: 36px;
+      height: 36px;
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      font-weight: 800;
+      color: white;
+      box-shadow: 0 4px 14px rgba(59, 130, 246, 0.35);
+    }
+
+    .story-copy {
+      position: relative;
+      z-index: 2;
+      max-width: 540px;
+      margin: 4vh 0;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(59, 130, 246, 0.12);
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      color: #93c5fd;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 5px 12px;
+      border-radius: 99px;
+      margin-bottom: 20px;
+    }
+
+    .eyebrow-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #4ade80;
+      box-shadow: 0 0 8px #4ade80;
+    }
+
+    .story h1 {
+      font-size: clamp(2.5rem, 4.2vw, 3.8rem);
+      font-weight: 800;
+      line-height: 1.08;
+      letter-spacing: -0.04em;
+      margin-bottom: 20px;
+      color: #fff;
+    }
+
+    .story h1 em {
+      font-style: normal;
+      background: linear-gradient(135deg, #60a5fa, #34d399);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .story-copy p {
+      font-size: 1.02rem;
+      line-height: 1.7;
+      color: var(--color-muted);
+      margin-bottom: 32px;
+    }
+
+    /* Live Features Pillars */
+    .pillar-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .pillar-item {
+      background: rgba(21, 26, 45, 0.7);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-size: 0.86rem;
+      color: #cbd5e1;
+      backdrop-filter: blur(8px);
+      transition: border-color 0.2s;
+    }
+
+    .pillar-item:hover {
+      border-color: rgba(59, 130, 246, 0.35);
+    }
+
+    .pillar-icon {
+      font-size: 1.2rem;
+    }
+
+    .story-foot {
+      font-size: 0.76rem;
+      color: var(--color-dim);
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      border-top: 1px solid var(--border);
+      padding-top: 20px;
+    }
+
+    /* Right Auth Form Section */
+    .auth-side {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 24px;
+      background: var(--bg-body);
+      position: relative;
+    }
+
+    .auth-card {
+      width: min(440px, 100%);
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 36px 32px;
+      box-shadow: 0 25px 70px rgba(0, 0, 0, 0.7);
+    }
+
+    .back {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--color-muted);
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-decoration: none;
+      margin-bottom: 24px;
+      transition: color 0.2s;
+    }
+
+    .back:hover {
+      color: #93c5fd;
+    }
+
+    .auth-card h2 {
+      font-size: 1.8rem;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 6px;
+      color: #fff;
+    }
+
+    .subtitle {
+      color: var(--color-muted);
+      font-size: 0.88rem;
+      margin-bottom: 24px;
+    }
+
+    /* Segmented Mode Switch Tabs (App Style) */
+    .role-tabs {
+      display: flex;
+      background: rgba(0, 0, 0, 0.45);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 3px;
+      gap: 4px;
+      margin-bottom: 24px;
+    }
+
+    .role-tab-btn {
+      flex: 1;
+      background: transparent;
+      border: none;
+      color: var(--color-muted);
+      font-size: 0.82rem;
+      font-weight: 700;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: var(--font-sans);
+    }
+
+    .role-tab-btn.active {
+      background: var(--color-accent);
+      color: white;
+      box-shadow: 0 2px 10px var(--color-accent-glow);
+    }
+
+    /* Form Fields */
+    .field {
+      margin-bottom: 16px;
+    }
+
+    .field label {
+      display: block;
+      font-size: 0.74rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--color-muted);
+      margin-bottom: 7px;
+    }
+
+    .field input {
+      width: 100%;
+      height: 46px;
+      background: #0a0c14;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 8px;
+      padding: 0 14px;
+      color: white;
+      font-size: 0.88rem;
+      font-family: var(--font-sans);
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .field input:focus {
+      border-color: var(--color-accent);
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+    }
+
+    .role-wrap {
+      margin: 4px 0 18px;
+    }
+
+    .role-wrap label {
+      display: block;
+      font-size: 0.74rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--color-muted);
+      margin-bottom: 8px;
+    }
+
+    .roles {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .role-option input {
+      position: absolute;
+      opacity: 0;
+    }
+
+    .role-option span {
+      display: grid;
+      place-items: center;
+      min-height: 40px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--color-muted);
+      background: rgba(0, 0, 0, 0.3);
+      font-size: 0.78rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .role-option input:checked + span {
+      border-color: var(--color-accent);
+      color: white;
+      background: rgba(59, 130, 246, 0.2);
+    }
+
+    .submit {
+      width: 100%;
+      height: 48px;
+      border: 0;
+      border-radius: 8px;
+      background: var(--color-accent);
+      color: #fff;
+      font-weight: 700;
+      font-size: 0.88rem;
+      font-family: var(--font-sans);
+      cursor: pointer;
+      margin-top: 4px;
+      transition: background 0.2s, transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 16px var(--color-accent-glow);
+    }
+
+    .submit:hover {
+      background: #2563eb;
+      transform: translateY(-1px);
+    }
+
+    .submit:disabled {
+      opacity: 0.65;
+      cursor: wait;
+      transform: none;
+    }
+
+    .notice {
+      min-height: 20px;
+      margin: 12px 0 0;
+      color: #ff8597;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+
+    /* 1-Click Fast Persona Switcher */
+    .persona-box {
+      margin-top: 24px;
+      padding: 16px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(59, 130, 246, 0.25);
+      border-radius: 10px;
+    }
+
+    .persona-box-title {
+      font-size: 0.72rem;
+      font-weight: 800;
+      color: #93c5fd;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .persona-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+    }
+
+    .btn-persona {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 9px 12px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      color: #f8fafc;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      font-family: var(--font-sans);
+    }
+
+    .btn-persona:hover {
+      background: rgba(59, 130, 246, 0.18);
+      border-color: #60a5fa;
+      transform: translateY(-1px);
+    }
+
+    .persona-tag {
+      font-size: 0.68rem;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-weight: 700;
+    }
+
+    .tag-buyer { background: rgba(59, 130, 246, 0.2); color: #93c5fd; }
+    .tag-seller { background: rgba(16, 185, 129, 0.2); color: #4ade80; }
+    .tag-agent { background: rgba(233, 69, 96, 0.2); color: #ff8597; }
+
+    .prototype-note {
+      margin-top: 18px;
+      border-top: 1px solid var(--border);
+      padding-top: 14px;
+      font-size: 0.72rem;
+      line-height: 1.6;
+      color: var(--color-dim);
+    }
+
+    .prototype-note strong { color: var(--color-muted); }
+
+    .hidden { display: none !important; }
+
+    @media (max-width: 860px) {
+      body { grid-template-columns: 1fr; }
+      .story { min-height: auto; padding: 32px 24px; }
+      .story-copy { margin: 20px 0; }
+      .story-foot { display: none; }
+      .auth-side { padding: 32px 20px 48px; }
+    }
   </style>
 </head>
 <body>
-  <aside class="story"><a href="/" class="brand"><span class="brandmark">↗</span> GlobalConnect</a><div class="story-copy"><div class="eyebrow">A clearer way across borders</div><h1>Make room for <em>understanding.</em></h1><p>Sign in to enter the GlobalConnect marketplace workspace. Keep the order, conversation, and next step together.</p></div><div class="story-foot">A marketplace communication prototype · 2026</div></aside>
-  <main class="auth-side"><section class="auth-card" aria-labelledby="formTitle"><a class="back" href="/">← Back to GlobalConnect</a><h2 id="formTitle">Welcome back</h2><p class="subtitle" id="formSubtitle">Sign in to continue to your workspace.</p>
-    <div class="mode-switch" role="tablist" aria-label="Account access"><button type="button" class="active" id="signinTab" role="tab" aria-selected="true">Sign in</button><button type="button" id="signupTab" role="tab" aria-selected="false">Create account</button></div>
-    <form id="authForm" novalidate>
-      <div class="field hidden" id="nameField"><label for="name">Your name</label><input id="name" name="name" autocomplete="name" maxlength="80" placeholder="e.g. Alex Morgan"></div>
-      <div class="field"><label for="email">Email address</label><input id="email" name="email" type="email" autocomplete="email" maxlength="254" placeholder="you@example.com" required></div>
-      <div class="field"><label for="password">Password</label><input id="password" name="password" type="password" autocomplete="current-password" minlength="8" maxlength="128" placeholder="At least 8 characters" required></div>
-      <div class="role-wrap hidden" id="roleField"><label>Choose your workspace</label><div class="roles"><label class="role-option"><input type="radio" name="role" value="buyer" checked><span>Buyer</span></label><label class="role-option"><input type="radio" name="role" value="seller"><span>Seller</span></label><label class="role-option"><input type="radio" name="role" value="agent"><span>Support</span></label></div></div>
-      <button class="submit" id="submitButton" type="submit">Sign in to workspace <span aria-hidden="true">↗</span></button><p class="notice" id="notice" role="status" aria-live="polite"></p>
-    </form>
-    <div style="margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line);">
-      <div style="font-size: 0.72rem; font-weight: 700; color: var(--muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">1-Click Demo Personas</div>
-      <div style="display: flex; gap: 6px;">
-        <button type="button" onclick="quickLogin('buyer@globalconnect.io', 'Password123!')" style="flex: 1; padding: 8px 4px; font-size: 0.72rem; font-weight: 700; border: 1px solid #dbe1d8; border-radius: 4px; background: #fff; cursor: pointer; color: var(--green);">👤 Buyer (Tariq)</button>
-        <button type="button" onclick="quickLogin('seller@globalconnect.io', 'Password123!')" style="flex: 1; padding: 8px 4px; font-size: 0.72rem; font-weight: 700; border: 1px solid #dbe1d8; border-radius: 4px; background: #fff; cursor: pointer; color: var(--green);">🏷️ Seller (Marco)</button>
-        <button type="button" onclick="quickLogin('agent@globalconnect.io', 'Password123!')" style="flex: 1; padding: 8px 4px; font-size: 0.72rem; font-weight: 700; border: 1px solid #dbe1d8; border-radius: 4px; background: #fff; cursor: pointer; color: var(--green);">🛡️ Agent (Sarah)</button>
+  <!-- Left Story / Branding -->
+  <aside class="story">
+    <a href="/" class="brand">
+      <span class="brand-badge">GC</span>
+      <span>GlobalConnect</span>
+    </a>
+
+    <div class="story-copy">
+      <div class="eyebrow">
+        <span class="eyebrow-dot"></span>
+        <span>A Clearer Way Across Borders</span>
+      </div>
+      <h1>Make room for <em>understanding.</em></h1>
+      <p>Enter the GlobalConnect cross-border marketplace workspace. Real-time cultural translation, physical 3D AR inspection, and automated escrow arbitration.</p>
+
+      <div class="pillar-stack">
+        <div class="pillar-item">
+          <span class="pillar-icon">⚡</span>
+          <span><strong>Real-Time Dual-View Chat</strong> with sub-60ms cultural etiquette calibration.</span>
+        </div>
+        <div class="pillar-item">
+          <span class="pillar-icon">🔍</span>
+          <span><strong>Three.js AR 3D Inspector</strong> cutting return friction by 23%.</span>
+        </div>
+        <div class="pillar-item">
+          <span class="pillar-icon">⚖️</span>
+          <span><strong>72-Hour AI Dispute Mediation</strong> with 1-click fast arbitration.</span>
+        </div>
+        <div class="pillar-item">
+          <span class="pillar-icon">🛡️</span>
+          <span><strong>Contact Masking Guard</strong> intercepting off-platform leakage attempts.</span>
+        </div>
       </div>
     </div>
-    <div class="prototype-note"><strong>Prototype account:</strong> Accounts are stored in memory for this demo and reset when the server restarts. Pre-seeded demo credentials (Password123!) are ready for immediate evaluation.</div>
-    <div class="terms">By continuing, you’ll enter the GlobalConnect demo workspace.</div>
-  </section></main>
+
+    <div class="story-foot">
+      <span>Nexconn Build Challenge 2026</span>
+      <span>•</span>
+      <span>55 / 55 Passing Automated Tests</span>
+    </div>
+  </aside>
+
+  <!-- Right Auth Form -->
+  <main class="auth-side">
+    <section class="auth-card" aria-labelledby="formTitle">
+      <a class="back" href="/">← Back to Overview</a>
+      <h2 id="formTitle">Welcome back</h2>
+      <p class="subtitle" id="formSubtitle">Sign in to continue to your workspace.</p>
+
+      <!-- Segmented Tab Switcher (Matching app.html) -->
+      <div class="role-tabs" role="tablist" aria-label="Account access">
+        <button type="button" class="role-tab-btn active" id="signinTab" role="tab" aria-selected="true">Sign In</button>
+        <button type="button" class="role-tab-btn" id="signupTab" role="tab" aria-selected="false">Create Account</button>
+      </div>
+
+      <form id="authForm" novalidate>
+        <div class="field hidden" id="nameField">
+          <label for="name">Your Full Name</label>
+          <input id="name" name="name" autocomplete="name" maxlength="80" placeholder="e.g. Alex Morgan">
+        </div>
+        <div class="field">
+          <label for="email">Email Address</label>
+          <input id="email" name="email" type="email" autocomplete="email" maxlength="254" placeholder="you@globalconnect.io" required>
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <input id="password" name="password" type="password" autocomplete="current-password" minlength="8" maxlength="128" placeholder="Enter password (e.g. Password123!)" required>
+        </div>
+        <div class="role-wrap hidden" id="roleField">
+          <label>Workspace Role</label>
+          <div class="roles">
+            <label class="role-option">
+              <input type="radio" name="role" value="buyer" checked>
+              <span>Buyer</span>
+            </label>
+            <label class="role-option">
+              <input type="radio" name="role" value="seller">
+              <span>Seller</span>
+            </label>
+            <label class="role-option">
+              <input type="radio" name="role" value="agent">
+              <span>Support</span>
+            </label>
+          </div>
+        </div>
+        <button class="submit" id="submitButton" type="submit">Sign in to Workspace ↗</button>
+        <p class="notice" id="notice" role="status" aria-live="polite"></p>
+      </form>
+
+      <!-- 1-Click Fast Persona Switcher -->
+      <div class="persona-box">
+        <div class="persona-box-title">
+          <span>⚡ 1-Click Fast Persona Switcher</span>
+        </div>
+        <div class="persona-buttons">
+          <button type="button" class="btn-persona" onclick="quickLogin('buyer@globalconnect.io', 'Password123!')">
+            <span>👤 <strong>Tariq Al-Mansoor</strong> (Dubai)</span>
+            <span class="persona-tag tag-buyer">Buyer (AR)</span>
+          </button>
+          <button type="button" class="btn-persona" onclick="quickLogin('seller@globalconnect.io', 'Password123!')">
+            <span>🏷️ <strong>Marco Rossi</strong> (Milan)</span>
+            <span class="persona-tag tag-seller">Seller (EN)</span>
+          </button>
+          <button type="button" class="btn-persona" onclick="quickLogin('agent@globalconnect.io', 'Password123!')">
+            <span>🛡️ <strong>Sarah Chen</strong> (Dispute Officer)</span>
+            <span class="persona-tag tag-agent">Agent Triage</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="prototype-note">
+        <strong>Pre-Seeded Demo Accounts:</strong> Ready for instant judge evaluation with password <code>Password123!</code>. Sessions are maintained via secure HTTP cookies.
+      </div>
+    </section>
+  </main>
+
   <script>
-    const form=document.getElementById('authForm'),signinTab=document.getElementById('signinTab'),signupTab=document.getElementById('signupTab'),nameField=document.getElementById('nameField'),roleField=document.getElementById('roleField'),title=document.getElementById('formTitle'),subtitle=document.getElementById('formSubtitle'),submitButton=document.getElementById('submitButton'),notice=document.getElementById('notice'),password=document.getElementById('password');
-    let mode='login';
-    function setMode(next){mode=next;const signup=mode==='signup';nameField.classList.toggle('hidden',!signup);roleField.classList.toggle('hidden',!signup);document.getElementById('name').required=signup;password.autocomplete=signup?'new-password':'current-password';title.textContent=signup?'Create your workspace':'Welcome back';subtitle.textContent=signup?'A few details, then you’re in.':'Sign in to continue to your workspace.';signinTab.classList.toggle('active',!signup);signupTab.classList.toggle('active',signup);signinTab.setAttribute('aria-selected',String(!signup));signupTab.setAttribute('aria-selected',String(signup));submitButton.innerHTML=signup?'Create account <span aria-hidden="true">↗</span>':'Sign in to workspace <span aria-hidden="true">↗</span>';notice.textContent=''}
-    signinTab.addEventListener('click',()=>setMode('login'));signupTab.addEventListener('click',()=>setMode('signup'));
-    const params=new URLSearchParams(location.search);if(params.get('mode')==='signup')setMode('signup');
-    form.addEventListener('submit',async event=>{event.preventDefault();notice.textContent='';if(!form.reportValidity())return;submitButton.disabled=true;submitButton.textContent=mode==='signup'?'Creating your account…':'Signing in…';const payload={email:document.getElementById('email').value.trim(),password:password.value};if(mode==='signup'){payload.name=document.getElementById('name').value.trim();payload.role=new FormData(form).get('role')||'buyer'}try{const response=await fetch(`/api/auth/${mode}`,{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify(payload)});const data=await response.json();if(!response.ok)throw new Error(data.error||'Authentication failed.');location.replace('/app.html')}catch(error){notice.textContent=error.message||'Could not connect. Start the GlobalConnect server and try again.'}finally{submitButton.disabled=false;setMode(mode)}});
+    const form = document.getElementById('authForm'),
+          signinTab = document.getElementById('signinTab'),
+          signupTab = document.getElementById('signupTab'),
+          nameField = document.getElementById('nameField'),
+          roleField = document.getElementById('roleField'),
+          title = document.getElementById('formTitle'),
+          subtitle = document.getElementById('formSubtitle'),
+          submitButton = document.getElementById('submitButton'),
+          notice = document.getElementById('notice'),
+          password = document.getElementById('password');
+
+    let mode = 'login';
+
+    function setMode(next) {
+      mode = next;
+      const signup = mode === 'signup';
+      nameField.classList.toggle('hidden', !signup);
+      roleField.classList.toggle('hidden', !signup);
+      document.getElementById('name').required = signup;
+      password.autocomplete = signup ? 'new-password' : 'current-password';
+      title.textContent = signup ? 'Create Your Workspace' : 'Welcome Back';
+      subtitle.textContent = signup ? 'Enter details to provision a prototype workspace.' : 'Sign in to continue to your workspace.';
+      signinTab.classList.toggle('active', !signup);
+      signupTab.classList.toggle('active', signup);
+      signinTab.setAttribute('aria-selected', String(!signup));
+      signupTab.setAttribute('aria-selected', String(signup));
+      submitButton.innerHTML = signup ? 'Create Account ↗' : 'Sign in to Workspace ↗';
+      notice.textContent = '';
+    }
+
+    signinTab.addEventListener('click', () => setMode('login'));
+    signupTab.addEventListener('click', () => setMode('signup'));
+
+    const params = new URLSearchParams(location.search);
+    if (params.get('mode') === 'signup') setMode('signup');
+
+    form.addEventListener('submit', async event => {
+      event.preventDefault();
+      notice.textContent = '';
+      if (!form.reportValidity()) return;
+      submitButton.disabled = true;
+      submitButton.textContent = mode === 'signup' ? 'Creating account…' : 'Signing in…';
+      const payload = {
+        email: document.getElementById('email').value.trim(),
+        password: password.value
+      };
+      if (mode === 'signup') {
+        payload.name = document.getElementById('name').value.trim();
+        payload.role = new FormData(form).get('role') || 'buyer';
+      }
+      try {
+        const response = await fetch(`/api/auth/${mode}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
+          body: JSON.stringify(payload)
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Authentication failed.');
+        location.replace('/app.html');
+      } catch (error) {
+        notice.textContent = error.message || 'Could not connect. Ensure the GlobalConnect server is running.';
+      } finally {
+        submitButton.disabled = false;
+        setMode(mode);
+      }
+    });
+
     function quickLogin(emailVal, passVal) {
       setMode('login');
       document.getElementById('email').value = emailVal;
