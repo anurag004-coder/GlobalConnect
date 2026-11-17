@@ -24,7 +24,15 @@
       <div class="role-wrap hidden" id="roleField"><label>Choose your workspace</label><div class="roles"><label class="role-option"><input type="radio" name="role" value="buyer" checked><span>Buyer</span></label><label class="role-option"><input type="radio" name="role" value="seller"><span>Seller</span></label><label class="role-option"><input type="radio" name="role" value="agent"><span>Support</span></label></div></div>
       <button class="submit" id="submitButton" type="submit">Sign in to workspace <span aria-hidden="true">↗</span></button><p class="notice" id="notice" role="status" aria-live="polite"></p>
     </form>
-    <div class="prototype-note"><strong>Prototype account:</strong> Accounts are stored in memory for this demo and reset when the server restarts. Use a password you don’t use elsewhere. No email verification is configured.</div>
+    <div style="margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line);">
+      <div style="font-size: 0.72rem; font-weight: 700; color: var(--muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">1-Click Demo Personas</div>
+      <div style="display: flex; gap: 6px;">
+        <button type="button" onclick="quickLogin('buyer@globalconnect.io', 'Password123!')" style="flex: 1; padding: 8px 4px; font-size: 0.72rem; font-weight: 700; border: 1px solid #dbe1d8; border-radius: 4px; background: #fff; cursor: pointer; color: var(--green);">👤 Buyer (Tariq)</button>
+        <button type="button" onclick="quickLogin('seller@globalconnect.io', 'Password123!')" style="flex: 1; padding: 8px 4px; font-size: 0.72rem; font-weight: 700; border: 1px solid #dbe1d8; border-radius: 4px; background: #fff; cursor: pointer; color: var(--green);">🏷️ Seller (Marco)</button>
+        <button type="button" onclick="quickLogin('agent@globalconnect.io', 'Password123!')" style="flex: 1; padding: 8px 4px; font-size: 0.72rem; font-weight: 700; border: 1px solid #dbe1d8; border-radius: 4px; background: #fff; cursor: pointer; color: var(--green);">🛡️ Agent (Sarah)</button>
+      </div>
+    </div>
+    <div class="prototype-note"><strong>Prototype account:</strong> Accounts are stored in memory for this demo and reset when the server restarts. Pre-seeded demo credentials (Password123!) are ready for immediate evaluation.</div>
     <div class="terms">By continuing, you’ll enter the GlobalConnect demo workspace.</div>
   </section></main>
   <script>
@@ -34,6 +42,12 @@
     signinTab.addEventListener('click',()=>setMode('login'));signupTab.addEventListener('click',()=>setMode('signup'));
     const params=new URLSearchParams(location.search);if(params.get('mode')==='signup')setMode('signup');
     form.addEventListener('submit',async event=>{event.preventDefault();notice.textContent='';if(!form.reportValidity())return;submitButton.disabled=true;submitButton.textContent=mode==='signup'?'Creating your account…':'Signing in…';const payload={email:document.getElementById('email').value.trim(),password:password.value};if(mode==='signup'){payload.name=document.getElementById('name').value.trim();payload.role=new FormData(form).get('role')||'buyer'}try{const response=await fetch(`/api/auth/${mode}`,{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify(payload)});const data=await response.json();if(!response.ok)throw new Error(data.error||'Authentication failed.');location.replace('/app.html')}catch(error){notice.textContent=error.message||'Could not connect. Start the GlobalConnect server and try again.'}finally{submitButton.disabled=false;setMode(mode)}});
+    function quickLogin(emailVal, passVal) {
+      setMode('login');
+      document.getElementById('email').value = emailVal;
+      password.value = passVal;
+      form.requestSubmit();
+    }
   </script>
 </body>
 </html>

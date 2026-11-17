@@ -786,6 +786,32 @@ async function verifyPassword(password, salt, expectedHash) {
     return actual.length === expected.length && crypto.timingSafeEqual(actual, expected);
 }
 
+// Seed default demonstration personas so auth.html works instantly out of the box
+async function seedDefaultAuthAccounts() {
+    const defaultAccounts = [
+        { id: 'buyer_dubai_12', email: 'buyer@globalconnect.io', password: 'Password123!', role: 'buyer', name: 'Tariq Al-Mansoor', lang: 'ar', trustScore: 98 },
+        { id: 'seller_milan_88', email: 'seller@globalconnect.io', password: 'Password123!', role: 'seller', name: 'Marco Rossi', lang: 'en', trustScore: 99 },
+        { id: 'agent_support_01', email: 'agent@globalconnect.io', password: 'Password123!', role: 'agent', name: 'Sarah Chen', lang: 'en', trustScore: 100 }
+    ];
+
+    for (const acc of defaultAccounts) {
+        const creds = await hashPassword(acc.password);
+        db.users[acc.id] = {
+            ...db.users[acc.id],
+            id: acc.id,
+            email: acc.email,
+            name: acc.name,
+            role: acc.role,
+            lang: acc.lang,
+            trustScore: acc.trustScore,
+            passwordSalt: creds.salt,
+            passwordHash: creds.hash
+        };
+        authUsersByEmail.set(acc.email, acc.id);
+    }
+}
+seedDefaultAuthAccounts().catch(err => console.error('Failed to seed default accounts:', err));
+
 // ==========================================
 // HTTP Server & Router
 // ==========================================
