@@ -42,6 +42,26 @@
     signinTab.addEventListener('click',()=>setMode('login'));signupTab.addEventListener('click',()=>setMode('signup'));
     const params=new URLSearchParams(location.search);if(params.get('mode')==='signup')setMode('signup');
     form.addEventListener('submit',async event=>{event.preventDefault();notice.textContent='';if(!form.reportValidity())return;submitButton.disabled=true;submitButton.textContent=mode==='signup'?'Creating your account…':'Signing in…';const payload={email:document.getElementById('email').value.trim(),password:password.value};if(mode==='signup'){payload.name=document.getElementById('name').value.trim();payload.role=new FormData(form).get('role')||'buyer'}try{const response=await fetch(`/api/auth/${mode}`,{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify(payload)});const data=await response.json();if(!response.ok)throw new Error(data.error||'Authentication failed.');location.replace('/app.html')}catch(error){notice.textContent=error.message||'Could not connect. Start the GlobalConnect server and try again.'}finally{submitButton.disabled=false;setMode(mode)}});
+    async function quickLoginRole(role) {
+      notice.textContent = '';
+      submitButton.disabled = true;
+      submitButton.innerHTML = 'Entering workspace…';
+      try {
+        const response = await fetch('/api/auth/demo-login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
+          body: JSON.stringify({ role })
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Authentication failed.');
+        window.location.href = '/app.html';
+      } catch (error) {
+        notice.textContent = error.message || 'Could not connect. Start the GlobalConnect server and try again.';
+        submitButton.disabled = false;
+        submitButton.innerHTML = 'Sign in to workspace <span aria-hidden="true">↗</span>';
+      }
+    }
     function quickLogin(emailVal, passVal) {
       setMode('login');
       document.getElementById('email').value = emailVal;
