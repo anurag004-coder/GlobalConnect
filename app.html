@@ -6,34 +6,34 @@
     <title>GlobalConnect Workspace | Marketplace & Agent Dashboard</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Manrope:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600;700&family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Manrope:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <style>
         :root {
-            --paper: #f7f6f2;
+            --paper: #f8f7f4;
             --paper-card: #ffffff;
-            --paper-tint: #edf1e9;
+            --paper-tint: #edf2ea;
             --ink: #14251f;
-            --ink-muted: #68756e;
-            --ink-dim: #8b958e;
-            --line: #e1e5dc;
-            --line-subtle: #ecefe8;
+            --ink-muted: #5e6f66;
+            --ink-dim: #88978e;
+            --line: #dfe5dc;
+            --line-subtle: #ebf0e8;
             --green: #173f32;
-            --green-dark: #102f25;
-            --green-light: #245c48;
-            --green-hover: #1e4a3c;
+            --green-dark: #0f2b22;
+            --green-light: #235946;
+            --green-hover: #1c493a;
             --lime: #d7ef9b;
-            --lime-soft: #edf5e8;
+            --lime-soft: #edf6e9;
             --gold: #d7a75b;
-            --terracotta: #9b4337;
-            --terracotta-soft: #faeceb;
-            --serif: Georgia, 'Times New Roman', serif;
+            --terracotta: #a63a2d;
+            --terracotta-soft: #fcf1f0;
             --sans: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             --display: Manrope, 'DM Sans', sans-serif;
+            --arabic: 'Alexandria', 'Noto Sans Arabic', system-ui, sans-serif;
             --font-mono: 'JetBrains Mono', monospace;
-            --shadow-sm: 0 1px 3px rgba(20, 37, 31, 0.05);
+            --shadow-sm: 0 1px 3px rgba(20, 37, 31, 0.04);
             --shadow-md: 0 4px 14px rgba(20, 37, 31, 0.07);
-            --shadow-lg: 0 14px 40px rgba(20, 37, 31, 0.12);
+            --shadow-lg: 0 16px 48px rgba(20, 37, 31, 0.12);
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -48,10 +48,10 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        /* Top Navigation */
+        /* Top Navigation Bar */
         .app-topbar {
-            height: 62px;
-            background: var(--paper-card);
+            height: 64px;
+            background: #ffffff;
             border-bottom: 1px solid var(--line);
             display: flex;
             align-items: center;
@@ -59,6 +59,7 @@
             padding: 0 24px;
             flex-shrink: 0;
             z-index: 10;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02);
         }
 
         .brand {
@@ -69,28 +70,43 @@
             color: var(--ink);
             font-family: var(--display);
             font-weight: 800;
-            font-size: 1.12rem;
+            font-size: 1.15rem;
             letter-spacing: -0.03em;
         }
 
         .brand-badge {
-            width: 32px;
-            height: 32px;
+            width: 34px;
+            height: 34px;
             border-radius: 50%;
             background: var(--lime);
             color: var(--green);
             display: grid;
             place-items: center;
-            font-size: 1.05rem;
+            font-size: 1.15rem;
             font-weight: 800;
             line-height: 1;
             flex-shrink: 0;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .brand-subtext {
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: var(--green);
+            background: var(--paper-tint);
+            border: 1px solid #d4ded1;
+            padding: 2px 8px;
+            border-radius: 99px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-left: 4px;
         }
 
         .role-tabs {
             display: flex;
-            background: var(--line-subtle);
-            border-radius: 6px;
+            background: #eef2ec;
+            border: 1px solid #dee5dc;
+            border-radius: 8px;
             padding: 3px;
             gap: 4px;
         }
@@ -102,8 +118,8 @@
             font-size: 0.78rem;
             font-weight: 700;
             font-family: var(--sans);
-            padding: 7px 14px;
-            border-radius: 4px;
+            padding: 7px 15px;
+            border-radius: 6px;
             cursor: pointer;
             transition: all 0.2s ease;
         }
@@ -115,29 +131,29 @@
         .role-tab-btn.active {
             background: #ffffff;
             color: var(--green);
-            box-shadow: 0 1px 4px rgba(20, 37, 31, 0.12);
+            box-shadow: 0 2px 6px rgba(20, 37, 31, 0.08);
         }
 
-        /* 1-Tap Persona Switcher */
+        /* 1-Tap Fast Persona Switcher */
         .top-persona-switch {
             display: flex;
             align-items: center;
             gap: 4px;
-            background: var(--paper-tint);
-            border: 1px solid var(--line);
+            background: #f1f5ef;
+            border: 1px solid #d8e2d4;
             padding: 3px;
-            border-radius: 6px;
+            border-radius: 8px;
         }
 
         .persona-tab-btn {
             background: transparent;
             border: none;
             color: var(--ink-muted);
-            font-size: 0.73rem;
+            font-size: 0.74rem;
             font-weight: 700;
             font-family: var(--sans);
-            padding: 5px 10px;
-            border-radius: 4px;
+            padding: 6px 12px;
+            border-radius: 6px;
             cursor: pointer;
             transition: all 0.15s ease;
         }
@@ -150,7 +166,7 @@
         .persona-tab-btn.active {
             background: var(--green);
             color: #ffffff;
-            box-shadow: 0 1px 3px rgba(20, 37, 31, 0.2);
+            box-shadow: 0 1px 4px rgba(23, 63, 50, 0.25);
         }
 
         .top-actions {
@@ -159,14 +175,35 @@
             gap: 16px;
         }
 
+        .user-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--paper-tint);
+            border: 1px solid var(--line);
+            padding: 5px 12px;
+            border-radius: 99px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--green);
+        }
+
+        .user-pill-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #22c55e;
+            box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
+        }
+
         .btn-link {
             color: var(--ink-muted);
             text-decoration: none;
             font-size: 0.82rem;
-            font-weight: 600;
+            font-weight: 700;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 4px;
             transition: color 0.2s;
         }
 
@@ -179,10 +216,10 @@
             overflow: hidden;
         }
 
-        /* Left Navigation / Sidebar - Deep Forest Green */
+        /* Left Navigation / Sidebar - Deep Slate Forest */
         .app-sidebar {
-            width: 300px;
-            background: var(--green);
+            width: 310px;
+            background: linear-gradient(180deg, #102d24 0%, #0c2019 100%);
             color: #ffffff;
             border-right: 1px solid rgba(255, 255, 255, 0.08);
             display: flex;
@@ -195,20 +232,20 @@
         .app-sidebar::after {
             content: "";
             position: absolute;
-            width: 420px;
-            height: 420px;
+            width: 440px;
+            height: 440px;
             border-radius: 50%;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            right: -170px;
-            bottom: -110px;
-            box-shadow: 0 0 0 35px rgba(255, 255, 255, 0.03), 0 0 0 70px rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            right: -180px;
+            bottom: -120px;
+            box-shadow: 0 0 0 35px rgba(255, 255, 255, 0.02), 0 0 0 75px rgba(255, 255, 255, 0.015);
             pointer-events: none;
         }
 
         .sidebar-section-title {
-            padding: 16px 20px 8px;
-            font-size: 0.69rem;
-            font-weight: 700;
+            padding: 18px 20px 10px;
+            font-size: 0.68rem;
+            font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 0.14em;
             color: var(--lime);
@@ -220,25 +257,34 @@
             list-style: none;
             overflow-y: auto;
             flex: 1;
+            padding: 6px 12px;
             position: relative;
             z-index: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
 
         .channel-item {
-            padding: 14px 20px;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            padding: 12px 14px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            background: rgba(255, 255, 255, 0.04);
+            border-radius: 8px;
             cursor: pointer;
             transition: all 0.2s ease;
             position: relative;
         }
 
         .channel-item:hover {
-            background: rgba(255, 255, 255, 0.05);
+            background: rgba(255, 255, 255, 0.08);
+            border-color: rgba(255, 255, 255, 0.12);
         }
 
         .channel-item.active {
-            background: var(--green-light);
-            border-left: 3px solid var(--lime);
+            background: rgba(215, 239, 155, 0.12);
+            border: 1px solid #d7ef9b;
+            border-left: 4px solid #d7ef9b;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
         }
 
         .channel-item-top {
@@ -256,33 +302,34 @@
         }
 
         .channel-time {
-            font-size: 0.7rem;
-            color: #a9bdb0;
+            font-size: 0.68rem;
+            color: #a4b8ad;
             font-family: var(--font-mono);
         }
 
         .channel-preview {
             font-size: 0.77rem;
-            color: #c1d0c4;
+            color: #c4d4ca;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            margin-bottom: 6px;
         }
 
         .badge-pill {
             font-size: 0.68rem;
-            padding: 2px 7px;
-            border-radius: 4px;
+            padding: 3px 8px;
+            border-radius: 99px;
             font-weight: 700;
             display: inline-flex;
             align-items: center;
             gap: 4px;
         }
 
-        .badge-escrow { background: var(--lime); color: var(--green); }
+        .badge-escrow { background: var(--lime); color: var(--green); font-weight: 800; }
         .badge-dispute { background: var(--terracotta-soft); color: var(--terracotta); border: 1px solid #eed0ce; }
 
-        /* Main Workspace */
+        /* Main Workspace Content */
         .app-content {
             flex: 1;
             display: flex;
@@ -291,7 +338,7 @@
             background: var(--paper);
         }
 
-        /* Chat Panel */
+        /* Center Chat Column */
         .chat-column {
             flex: 1;
             display: flex;
@@ -307,6 +354,7 @@
             justify-content: space-between;
             align-items: center;
             background: #ffffff;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
         }
 
         .chat-header-user {
@@ -316,8 +364,8 @@
         }
 
         .chat-avatar {
-            width: 36px;
-            height: 36px;
+            width: 38px;
+            height: 38px;
             border-radius: 50%;
             background: var(--green);
             color: var(--lime);
@@ -325,7 +373,8 @@
             align-items: center;
             justify-content: center;
             font-weight: 800;
-            font-size: 0.85rem;
+            font-size: 0.9rem;
+            box-shadow: 0 2px 6px rgba(23, 63, 50, 0.2);
         }
 
         /* Message Stream */
@@ -335,29 +384,66 @@
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 16px;
+            gap: 18px;
             background: var(--paper);
         }
 
+        /* Dual-Pane Message Card */
         .msg-dual-card {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
             background: #ffffff;
-            border: 1px solid var(--line);
-            border-radius: 6px;
-            padding: 16px 20px;
-            box-shadow: var(--shadow-sm);
+            border: 1px solid #dfe5dc;
+            border-radius: 12px;
+            padding: 18px 22px;
+            box-shadow: 0 2px 8px rgba(20, 37, 31, 0.03);
             position: relative;
         }
 
-        .msg-lang-tag {
-            font-size: 0.69rem;
+        .msg-card-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 12px;
+            margin-bottom: 14px;
+            border-bottom: 1px solid #edf1eb;
+        }
+
+        .msg-sender-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.8rem;
             font-weight: 700;
+            color: var(--green);
+        }
+
+        .msg-timestamp {
+            font-size: 0.72rem;
+            color: var(--ink-dim);
+            font-family: var(--font-mono);
+            font-weight: 500;
+        }
+
+        .msg-dual-grid {
+            display: grid;
+            grid-template-columns: 1fr 1px 1fr;
+            gap: 18px;
+            align-items: start;
+        }
+
+        .msg-divider-line {
+            width: 1px;
+            background: #dfe6dc;
+            height: 100%;
+            min-height: 48px;
+        }
+
+        .msg-col-header {
+            font-size: 0.69rem;
+            font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 0.08em;
             color: var(--ink-muted);
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -365,74 +451,122 @@
 
         .confidence-tag {
             font-family: var(--font-mono);
-            color: var(--green-light);
+            color: var(--green);
             background: var(--lime-soft);
-            border: 1px solid #c5e1cb;
-            padding: 1px 6px;
-            border-radius: 3px;
+            border: 1px solid #c2dfc9;
+            padding: 1px 7px;
+            border-radius: 99px;
             font-weight: 700;
             font-size: 0.68rem;
         }
 
         .msg-text-main {
-            font-size: 0.9rem;
-            line-height: 1.55;
+            font-size: 0.92rem;
+            line-height: 1.6;
             color: var(--ink);
+        }
+
+        .msg-text-arabic {
+            font-family: var(--arabic);
+            font-size: 1.05rem;
+            line-height: 1.75;
+            color: #122820;
+            text-align: right;
+            direction: rtl;
         }
 
         .cultural-badge {
-            margin-top: 10px;
-            font-size: 0.75rem;
+            margin-top: 14px;
+            font-size: 0.77rem;
             line-height: 1.5;
             background: var(--paper-tint);
-            border-left: 3px solid var(--green-light);
-            padding: 6px 10px;
-            border-radius: 0 4px 4px 0;
-            color: var(--ink);
+            border: 1px solid #d5e2d2;
+            border-left: 3px solid var(--green);
+            padding: 8px 12px;
+            border-radius: 6px;
+            color: #1a4133;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        /* Deal Card Component (Tier 1 #6) */
+        /* Deal Card Component (Executive Commercial Agreement) */
         .deal-card {
             background: #ffffff;
             border: 1.5px solid var(--green);
-            border-radius: 6px;
-            padding: 18px 22px;
+            border-radius: 12px;
             margin: 8px 0;
-            box-shadow: var(--shadow-sm);
+            box-shadow: 0 4px 16px rgba(23, 63, 50, 0.08);
+            overflow: hidden;
         }
 
         .deal-card-header {
+            background: var(--green);
+            color: #ffffff;
+            padding: 12px 20px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 12px;
         }
 
         .deal-card-title {
             font-size: 0.88rem;
-            font-weight: 700;
-            color: var(--green);
+            font-weight: 800;
             font-family: var(--display);
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .deal-terms-list {
-            font-size: 0.82rem;
+        .deal-card-body {
+            padding: 16px 20px;
+            background: #ffffff;
+        }
+
+        .deal-spec-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .deal-spec-item {
+            background: #f7faf5;
+            border: 1px solid #e1eadf;
+            border-radius: 8px;
+            padding: 10px 12px;
+        }
+
+        .deal-spec-label {
+            font-size: 0.68rem;
+            font-weight: 800;
+            color: var(--ink-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            margin-bottom: 4px;
+        }
+
+        .deal-spec-val {
+            font-size: 0.85rem;
+            font-weight: 700;
             color: var(--ink);
-            margin-bottom: 14px;
-            line-height: 1.65;
         }
 
         .deal-actions {
             display: flex;
-            gap: 10px;
+            gap: 12px;
+            align-items: center;
+            padding-top: 12px;
+            border-top: 1px solid #edf1eb;
         }
 
         .btn-action {
-            padding: 8px 16px;
-            font-size: 0.78rem;
+            padding: 9px 18px;
+            font-size: 0.8rem;
             font-weight: 700;
             font-family: var(--sans);
-            border-radius: 4px;
+            border-radius: 6px;
             border: none;
             cursor: pointer;
             transition: all 0.2s;
@@ -442,32 +576,111 @@
             gap: 6px;
         }
 
-        .btn-accept { background: var(--green); color: white; }
-        .btn-accept:hover { background: var(--green-dark); }
-        .btn-counter { background: #ffffff; color: var(--ink); border: 1px solid var(--line); }
-        .btn-counter:hover { background: var(--paper-tint); }
+        .btn-accept {
+            background: var(--green);
+            color: white;
+            box-shadow: 0 2px 6px rgba(23, 63, 50, 0.25);
+        }
+
+        .btn-accept:hover {
+            background: var(--green-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn-counter {
+            background: #ffffff;
+            color: var(--green);
+            border: 1px solid #cbd7c8;
+        }
+
+        .btn-counter:hover {
+            background: var(--paper-tint);
+        }
 
         /* Chat Input Bar */
         .chat-input-bar {
             padding: 14px 24px;
             background: #ffffff;
             border-top: 1px solid var(--line);
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.02);
+        }
+
+        .glossary-chips-bar {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 12px;
+            background: #f2f6f0;
+            border: 1px solid #dce5da;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            overflow-x: auto;
+            font-size: 0.75rem;
+        }
+
+        .chips-label {
+            color: var(--ink-muted);
+            font-weight: 800;
+            white-space: nowrap;
+            text-transform: uppercase;
+            font-size: 0.68rem;
+            letter-spacing: 0.08em;
+        }
+
+        .chip-btn {
+            background: #ffffff;
+            border: 1px solid #d4ded1;
+            color: var(--green);
+            padding: 4px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            white-space: nowrap;
+            font-size: 0.74rem;
+            font-weight: 700;
+            font-family: var(--sans);
+            transition: all 0.15s ease;
+        }
+
+        .chip-btn:hover {
+            border-color: var(--green);
+            background: #ffffff;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        }
+
+        .chip-btn-manage {
+            background: var(--green);
+            border: none;
+            color: #ffffff;
+            padding: 4px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            white-space: nowrap;
+            font-size: 0.72rem;
+            font-weight: 700;
+            margin-left: auto;
+            font-family: var(--sans);
+            transition: all 0.15s ease;
+        }
+
+        .chip-btn-manage:hover {
+            background: var(--green-dark);
         }
 
         .input-form-inner {
             display: flex;
             align-items: center;
             gap: 12px;
-            background: var(--paper);
-            border: 1px solid var(--line);
-            border-radius: 4px;
-            padding: 5px 12px;
-            transition: border-color 0.2s;
+            background: #ffffff;
+            border: 1.5px solid #d4ded1;
+            border-radius: 10px;
+            padding: 6px 8px 6px 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
+            transition: border-color 0.2s, box-shadow 0.2s;
         }
 
         .input-form-inner:focus-within {
-            border-color: var(--green-light);
-            box-shadow: 0 0 0 3px rgba(36, 92, 72, 0.1);
+            border-color: var(--green);
+            box-shadow: 0 0 0 3px rgba(23, 63, 50, 0.1);
         }
 
         .input-form-inner input {
@@ -476,8 +689,33 @@
             border: none;
             outline: none;
             color: var(--ink);
-            font-size: 0.88rem;
+            font-size: 0.9rem;
             font-family: var(--sans);
+        }
+
+        .input-form-inner input::placeholder {
+            color: var(--ink-dim);
+        }
+
+        .btn-send-main {
+            background: var(--green);
+            color: #ffffff;
+            border: none;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 0.84rem;
+            padding: 9px 22px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 2px 6px rgba(23, 63, 50, 0.25);
+            transition: all 0.2s;
+        }
+
+        .btn-send-main:hover {
+            background: var(--green-dark);
+            transform: translateY(-1px);
         }
 
         /* Right Panel: Order & Context Sidebar */
@@ -496,18 +734,18 @@
         .context-card {
             background: #ffffff;
             border: 1px solid var(--line);
-            border-radius: 6px;
-            padding: 18px;
-            box-shadow: var(--shadow-sm);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(20, 37, 31, 0.03);
         }
 
         .card-header-label {
             font-size: 0.7rem;
-            font-weight: 700;
+            font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 0.1em;
             color: var(--ink-muted);
-            margin-bottom: 12px;
+            margin-bottom: 14px;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -521,20 +759,21 @@
         }
 
         .product-icon-box {
-            width: 48px;
-            height: 48px;
-            border-radius: 6px;
+            width: 52px;
+            height: 52px;
+            border-radius: 10px;
             background: var(--paper-tint);
-            border: 1px solid var(--line);
+            border: 1px solid #d4ded1;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.4rem;
+            font-size: 1.6rem;
+            flex-shrink: 0;
         }
 
         .product-desc-title {
-            font-size: 0.95rem;
-            font-weight: 700;
+            font-size: 0.96rem;
+            font-weight: 800;
             font-family: var(--display);
             color: var(--ink);
         }
@@ -542,40 +781,167 @@
         .product-desc-sub {
             font-size: 0.76rem;
             color: var(--ink-muted);
+            margin-top: 2px;
         }
 
-        /* Escrow Progress */
+        /* Dedicated Escrow Callout Box */
+        .escrow-callout-box {
+            background: #f4f8f2;
+            border: 1px solid #d7e8d3;
+            border-radius: 8px;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 12px 0;
+        }
+
+        .escrow-callout-label {
+            font-size: 0.78rem;
+            font-weight: 700;
+            color: var(--ink-muted);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .escrow-callout-val {
+            font-size: 1.15rem;
+            font-weight: 800;
+            font-family: var(--display);
+            color: var(--green);
+        }
+
+        /* Milestone Escrow Timeline with Vertical Track */
         .escrow-timeline {
+            position: relative;
             display: flex;
             flex-direction: column;
-            gap: 12px;
-            margin-top: 10px;
+            gap: 18px;
+            margin: 16px 0 20px;
+            padding-left: 6px;
+        }
+
+        .escrow-timeline::before {
+            content: "";
+            position: absolute;
+            left: 17px;
+            top: 14px;
+            bottom: 14px;
+            width: 2px;
+            background: #dce5da;
+            z-index: 0;
         }
 
         .timeline-step-row {
             display: flex;
             align-items: center;
-            gap: 12px;
-            font-size: 0.82rem;
+            gap: 14px;
+            position: relative;
+            z-index: 1;
         }
 
         .step-bubble {
-            width: 22px;
-            height: 22px;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.72rem;
+            font-size: 0.75rem;
             font-weight: 800;
             flex-shrink: 0;
+            background: #ffffff;
         }
 
-        .step-bubble.done { background: var(--green); color: var(--lime); }
-        .step-bubble.current { background: var(--lime); color: var(--green); box-shadow: 0 0 0 3px rgba(23, 63, 50, 0.15); }
-        .step-bubble.pending { background: var(--line-subtle); color: var(--ink-dim); border: 1px solid var(--line); }
+        .step-bubble.done {
+            background: var(--green);
+            color: var(--lime);
+            box-shadow: 0 0 0 2px #ffffff, 0 1px 4px rgba(0, 0, 0, 0.1);
+        }
 
-        /* Owner Analytics View (Tier 2 #14) */
+        .step-bubble.current {
+            background: var(--lime);
+            color: var(--green);
+            box-shadow: 0 0 0 3px rgba(23, 63, 50, 0.2);
+            animation: pulseLime 2s infinite;
+        }
+
+        @keyframes pulseLime {
+            0% { box-shadow: 0 0 0 2px rgba(23, 63, 50, 0.2); }
+            50% { box-shadow: 0 0 0 5px rgba(23, 63, 50, 0.1); }
+            100% { box-shadow: 0 0 0 2px rgba(23, 63, 50, 0.2); }
+        }
+
+        .step-bubble.pending {
+            background: #f1f4ee;
+            color: var(--ink-dim);
+            border: 1.5px solid #d4ded1;
+        }
+
+        .btn-release-main {
+            width: 100%;
+            background: var(--green);
+            color: #ffffff;
+            font-family: var(--sans);
+            font-weight: 700;
+            font-size: 0.88rem;
+            padding: 13px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(23, 63, 50, 0.2);
+            transition: all 0.2s ease;
+        }
+
+        .btn-release-main:hover {
+            background: var(--green-dark);
+            transform: translateY(-1px);
+        }
+
+        /* Agent Support Inbox View */
+        .inbox-view {
+            display: none;
+            flex: 1;
+            padding: 32px;
+            overflow-y: auto;
+            background: var(--paper);
+        }
+
+        .inbox-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #ffffff;
+            border: 1px solid var(--line);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+        }
+
+        .inbox-table th {
+            background: #f0f4ee;
+            padding: 14px 20px;
+            font-size: 0.74rem;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--green);
+            font-weight: 800;
+            text-align: left;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .inbox-table td {
+            padding: 14px 20px;
+            font-size: 0.85rem;
+            border-bottom: 1px solid var(--line);
+            color: var(--ink);
+        }
+
+        .inbox-table tr:hover td {
+            background: var(--paper-tint);
+        }
+
+        /* Owner Analytics View */
         .metrics-view {
             display: none;
             flex: 1;
@@ -594,9 +960,9 @@
         .metric-widget {
             background: #ffffff;
             border: 1px solid var(--line);
-            border-radius: 6px;
+            border-radius: 10px;
             padding: 22px 20px;
-            box-shadow: var(--shadow-sm);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
         }
 
         .metric-widget-val {
@@ -611,53 +977,11 @@
             font-size: 0.72rem;
             color: var(--ink-muted);
             text-transform: uppercase;
-            font-weight: 700;
+            font-weight: 800;
             letter-spacing: 0.08em;
         }
 
-        /* Agent Inbox Triage View (Tier 2 #13) */
-        .inbox-view {
-            display: none;
-            flex: 1;
-            padding: 32px;
-            overflow-y: auto;
-            background: var(--paper);
-        }
-
-        .inbox-table {
-            width: 100%;
-            border-collapse: collapse;
-            background: #ffffff;
-            border: 1px solid var(--line);
-            border-radius: 6px;
-            overflow: hidden;
-            box-shadow: var(--shadow-sm);
-        }
-
-        .inbox-table th {
-            background: var(--paper-tint);
-            padding: 14px 20px;
-            font-size: 0.73rem;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: var(--green);
-            font-weight: 700;
-            text-align: left;
-            border-bottom: 1px solid var(--line);
-        }
-
-        .inbox-table td {
-            padding: 14px 20px;
-            font-size: 0.85rem;
-            border-bottom: 1px solid var(--line);
-            color: var(--ink);
-        }
-
-        .inbox-table tr:hover td {
-            background: var(--paper-tint);
-        }
-
-        /* AR Spatial Inspector View (Tier 3 #16) */
+        /* AR View */
         .ar-view {
             display: none;
             flex: 1;
@@ -666,18 +990,10 @@
             background: var(--paper);
         }
 
-        .ar-container-grid {
-            display: grid;
-            grid-template-columns: 1.25fr 0.95fr;
-            gap: 24px;
-            margin-top: 18px;
-            min-height: 520px;
-        }
-
         .ar-viewport-card {
             background: #ffffff;
             border: 1px solid var(--line);
-            border-radius: 6px;
+            border-radius: 10px;
             position: relative;
             overflow: hidden;
             display: flex;
@@ -743,24 +1059,24 @@
         .ar-deck-card {
             background: #ffffff;
             border: 1px solid var(--line);
-            border-radius: 6px;
+            border-radius: 10px;
             padding: 20px;
             display: flex;
             flex-direction: column;
             gap: 16px;
-            box-shadow: var(--shadow-sm);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
         }
 
         .ar-spec-card {
             background: var(--paper-tint);
             border: 1px solid var(--line);
-            border-radius: 6px;
+            border-radius: 8px;
             padding: 14px;
             transition: all 0.2s ease;
         }
 
         .ar-spec-card.highlight {
-            border-color: var(--green-light);
+            border-color: var(--green);
             background: var(--lime-soft);
             box-shadow: 0 0 12px rgba(23, 63, 50, 0.15);
         }
@@ -771,78 +1087,18 @@
             justify-content: space-between;
             margin-bottom: 6px;
             font-size: 0.74rem;
-            font-weight: 700;
+            font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 0.06em;
             color: var(--green);
         }
 
-        /* Smart Glossary Bar (Tier 3 #17) */
-        .glossary-chips-bar {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 8px 16px;
-            background: var(--paper-tint);
-            border-radius: 4px;
-            margin-bottom: 10px;
-            overflow-x: auto;
-            font-size: 0.75rem;
-        }
-
-        .chips-label {
-            color: var(--ink-muted);
-            font-weight: 700;
-            white-space: nowrap;
-            text-transform: uppercase;
-            font-size: 0.68rem;
-            letter-spacing: 0.08em;
-        }
-
-        .chip-btn {
-            background: #ffffff;
-            border: 1px solid var(--line);
-            color: var(--green);
-            padding: 4px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            white-space: nowrap;
-            font-size: 0.74rem;
-            font-weight: 700;
-            font-family: var(--sans);
-            transition: all 0.15s ease;
-        }
-
-        .chip-btn:hover {
-            border-color: var(--green);
-            background: #ffffff;
-        }
-
-        .chip-btn-manage {
-            background: var(--green);
-            border: none;
-            color: #ffffff;
-            padding: 4px 10px;
-            border-radius: 4px;
-            cursor: pointer;
-            white-space: nowrap;
-            font-size: 0.72rem;
-            font-weight: 700;
-            margin-left: auto;
-            font-family: var(--sans);
-            transition: all 0.15s ease;
-        }
-
-        .chip-btn-manage:hover {
-            background: var(--green-dark);
-        }
-
-        /* Context Packet Modal (Tier 2 #12) */
+        /* Modals */
         .packet-modal-backdrop {
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(20, 37, 31, 0.7);
+            background: rgba(16, 45, 36, 0.65);
             backdrop-filter: blur(4px);
             z-index: 1000;
             padding: 30px 20px;
@@ -859,7 +1115,7 @@
             background: #ffffff;
             border: 1px solid var(--line);
             box-shadow: var(--shadow-lg);
-            border-radius: 8px;
+            border-radius: 12px;
             width: min(880px, 100%);
             max-height: 90vh;
             overflow-y: auto;
@@ -919,14 +1175,14 @@
         .packet-section-card {
             background: #ffffff;
             border: 1px solid var(--line);
-            border-radius: 6px;
+            border-radius: 8px;
             padding: 16px;
-            box-shadow: var(--shadow-sm);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.02);
         }
 
         .packet-section-title {
             font-size: 0.74rem;
-            font-weight: 700;
+            font-weight: 800;
             text-transform: uppercase;
             letter-spacing: 0.08em;
             color: var(--green);
@@ -948,14 +1204,14 @@
         .packet-timeline-time {
             font-family: var(--font-mono);
             font-size: 0.72rem;
-            color: var(--green-light);
+            color: var(--green);
             font-weight: 700;
             min-width: 90px;
         }
 
         .packet-action-card {
             border: 1px solid var(--line);
-            border-radius: 6px;
+            border-radius: 8px;
             padding: 12px;
             display: flex;
             align-items: center;
@@ -975,8 +1231,9 @@
     <!-- Top App Navigation -->
     <header class="app-topbar">
         <a href="index.html" class="brand">
-            <div class="brand-badge">GC</div>
-            <span>GlobalConnect Workspace</span>
+            <div class="brand-badge">↗</div>
+            <span>GlobalConnect</span>
+            <span class="brand-subtext">Workspace</span>
         </a>
 
         <!-- Workspace View Switcher -->
@@ -987,9 +1244,19 @@
             <button class="role-tab-btn" onclick="switchAppView('analytics')">Marketplace Metrics</button>
         </div>
 
+        <!-- 1-Tap Fast Persona Switcher (Zero credential forms) -->
+        <div class="top-persona-switch">
+            <button type="button" class="persona-tab-btn" id="personaBuyerBtn" onclick="quickSwitchPersona('buyer')" title="1-Tap switch to Tariq (Buyer)">👤 Buyer (Tariq)</button>
+            <button type="button" class="persona-tab-btn" id="personaSellerBtn" onclick="quickSwitchPersona('seller')" title="1-Tap switch to Marco (Seller)">🏷️ Seller (Marco)</button>
+            <button type="button" class="persona-tab-btn" id="personaAgentBtn" onclick="quickSwitchPersona('agent')" title="1-Tap switch to Sarah (Agent)">🛡️ Agent (Sarah)</button>
+        </div>
+
         <div class="top-actions">
-            <span id="signedInUser" style="font-size: 0.78rem; font-weight: 600; color: var(--ink-muted);">Checking session…</span>
-            <button class="btn-link" onclick="signOut()" style="background: none; border: 0; cursor: pointer; font: inherit;">Sign out</button>
+            <div class="user-pill">
+                <span class="user-pill-dot"></span>
+                <span id="signedInUser">Checking session…</span>
+            </div>
+            <button class="btn-link" onclick="signOut()" style="background: none; border: 0; cursor: pointer; font: inherit;">Sign out ↗</button>
         </div>
     </header>
 
@@ -1136,7 +1403,10 @@
                     <form onsubmit="sendAppMessage(event)">
                         <div class="input-form-inner">
                             <input type="text" id="appMsgInput" placeholder="Send translated message or test contact masking (e.g. phone/email)...">
-                            <button type="submit" class="btn-action" style="background: var(--color-accent); color: white;">Send</button>
+                            <button type="submit" class="btn-send-main">
+                                <span>Send</span>
+                                <span style="font-size: 1.05rem;">↗</span>
+                            </button>
                         </div>
                     </form>
                 </div>
@@ -1674,9 +1944,23 @@
         }
 
         
-        async function quickSwitchPersona(email, password) {
+        async function quickSwitchPersona(role) {
             try {
-                await fetch('/api/auth/logout', { method: 'POST', credentials: 'same-origin' });
+                const res = await fetch('/api/auth/demo-login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'same-origin',
+                    body: JSON.stringify({ role })
+                });
+                if (res.ok) {
+                    window.location.reload();
+                } else {
+                    alert('Persona switch failed.');
+                }
+            } catch (err) {
+                console.error('Failed to switch persona:', err);
+            }
+        });
                 const res = await fetch('/api/auth/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -1918,12 +2202,25 @@
                         <span class="deal-card-title">🤝 ${msg.deal?.title || 'Proposed Specification Agreement'}</span>
                         <span class="badge-pill badge-escrow">${msg.deal?.status || 'Binding Offer'}</span>
                     </div>
-                    <div class="deal-terms-list">
-                        ${(msg.deal?.terms || []).map(t => `• ${t}`).join('<br>')}
-                    </div>
-                    <div class="deal-actions">
-                        <button class="btn-action btn-accept" onclick="executeBindingDeal()">Accept Binding Terms</button>
-                        <button class="btn-action btn-counter" onclick="alert('Counter-offer proposal dialog opened.')">Propose Counter-Terms</button>
+                    <div class="deal-card-body">
+                        <div class="deal-spec-grid">
+                            <div class="deal-spec-item">
+                                <div class="deal-spec-label">Item & Sizing</div>
+                                <div class="deal-spec-val">Vintage Italian Leather Jacket (EU 50 / L)</div>
+                            </div>
+                            <div class="deal-spec-item">
+                                <div class="deal-spec-label">Agreed Escrow Amount</div>
+                                <div class="deal-spec-val" style="color: var(--green);">$249.00 USD (Includes Courier)</div>
+                            </div>
+                            <div class="deal-spec-item">
+                                <div class="deal-spec-label">Inspection Guarantee</div>
+                                <div class="deal-spec-val">48-Hour Return Window for Authenticity</div>
+                            </div>
+                        </div>
+                        <div class="deal-actions">
+                            <button class="btn-action btn-accept" onclick="executeBindingDeal()">Accept Binding Terms ↗</button>
+                            <button class="btn-action btn-counter" onclick="alert('Counter-offer proposal dialog opened.')">Propose Counter-Terms</button>
+                        </div>
                     </div>
                 `;
                 stream.appendChild(dealCard);
@@ -1944,46 +2241,69 @@
             const culturalNote = msg.translation?.culturalAdaptation;
             const timeStr = msg.timestamp ? new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : 'Just now';
 
+            const sourceLang = (msg.sourceLang || 'en').toUpperCase();
+            const targetLang = (msg.targetLang || 'ar').toUpperCase();
+            const isTargetArabic = targetLang === 'AR' || /[\u0600-\u06FF]/.test(transText);
+            const isSourceArabic = sourceLang === 'AR' || /[\u0600-\u06FF]/.test(origText);
+
             if (isMasked) {
-                card.style.borderLeft = "3px solid #E94560";
+                card.style.borderLeft = "4px solid var(--terracotta)";
                 card.innerHTML = `
-                    <div>
-                        <div class="msg-lang-tag" style="color: #ff8597;">
-                            <span>${senderName}${senderRole} • Security Guard</span>
-                            <span>${timeStr}</span>
+                    <div class="msg-card-meta">
+                        <div class="msg-sender-info" style="color: var(--terracotta);">
+                            <span>🛡️ ${senderName}${senderRole} • Security Interception</span>
                         </div>
-                        <div class="msg-text-main">${origText}</div>
+                        <div class="msg-timestamp">${timeStr}</div>
                     </div>
-                    <div>
-                        <div class="msg-lang-tag">
-                            <span style="color: #f59e0b;">Contact Masking Guard</span>
-                            <span>Policy Enforced</span>
+                    <div class="msg-dual-grid">
+                        <div>
+                            <div class="msg-col-header">Original Message</div>
+                            <div class="msg-text-main">${origText}</div>
                         </div>
-                        <div class="msg-text-main" style="color: var(--ink); font-size: 0.8rem;">
-                            🛡️ Direct communication information redacted to protect escrow warranty.
+                        <div class="msg-divider-line"></div>
+                        <div>
+                            <div class="msg-col-header" style="color: var(--terracotta);">Policy Guard</div>
+                            <div class="msg-text-main" style="color: var(--ink-muted); font-size: 0.85rem;">
+                                🛡️ Direct contact details (phone/email/off-platform links) redacted to preserve payment escrow guarantee.
+                            </div>
                         </div>
                     </div>
                 `;
             } else {
                 card.innerHTML = `
-                    <div>
-                        <div class="msg-lang-tag">
-                            <span>${senderName}${senderRole} • Original (${(msg.sourceLang || 'en').toUpperCase()})</span>
-                            <span>${timeStr}</span>
+                    <div class="msg-card-meta">
+                        <div class="msg-sender-info">
+                            <span>👤 ${senderName}${senderRole}</span>
                         </div>
-                        <div class="msg-text-main">${origText}</div>
-                    </div>
-                    <div>
-                        <div class="msg-lang-tag">
-                            <span style="color: var(--green);">Real-Time Translation (${(msg.targetLang || 'ar').toUpperCase()})</span>
+                        <div style="display: flex; align-items: center; gap: 8px;">
                             <span class="confidence-tag">${conf}</span>
+                            <span class="msg-timestamp">${timeStr}</span>
                         </div>
-                        <div class="msg-text-main">${transText}</div>
-                        ${culturalNote ? `
-                        <div class="cultural-badge">
-                            💡 <strong>Cultural Context:</strong> ${culturalNote}
-                        </div>` : ''}
                     </div>
+                    <div class="msg-dual-grid">
+                        <div>
+                            <div class="msg-col-header">
+                                <span>ORIGINAL (${sourceLang})</span>
+                            </div>
+                            <div class="${isSourceArabic ? 'msg-text-arabic' : 'msg-text-main'}" ${isSourceArabic ? 'dir="rtl" lang="ar"' : ''}>
+                                ${origText}
+                            </div>
+                        </div>
+                        <div class="msg-divider-line"></div>
+                        <div>
+                            <div class="msg-col-header">
+                                <span style="color: var(--green);">TRANSLATED (${targetLang})</span>
+                            </div>
+                            <div class="${isTargetArabic ? 'msg-text-arabic' : 'msg-text-main'}" ${isTargetArabic ? 'dir="rtl" lang="ar"' : ''}>
+                                ${transText}
+                            </div>
+                        </div>
+                    </div>
+                    ${culturalNote ? `
+                    <div class="cultural-badge">
+                        <span>💡</span>
+                        <span><strong>Cultural Context:</strong> ${culturalNote}</span>
+                    </div>` : ''}
                 `;
             }
 

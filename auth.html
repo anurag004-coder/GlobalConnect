@@ -27,12 +27,12 @@
     <div style="margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line);">
       <div style="font-size: 0.72rem; font-weight: 700; color: var(--muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.05em;">1-Click Demo Personas</div>
       <div style="display: flex; gap: 6px;">
-        <button type="button" onclick="quickLogin('buyer@globalconnect.io', 'Password123!')" style="flex: 1; padding: 8px 4px; font-size: 0.72rem; font-weight: 700; border: 1px solid #dbe1d8; border-radius: 4px; background: #fff; cursor: pointer; color: var(--green);">👤 Buyer (Tariq)</button>
-        <button type="button" onclick="quickLogin('seller@globalconnect.io', 'Password123!')" style="flex: 1; padding: 8px 4px; font-size: 0.72rem; font-weight: 700; border: 1px solid #dbe1d8; border-radius: 4px; background: #fff; cursor: pointer; color: var(--green);">🏷️ Seller (Marco)</button>
-        <button type="button" onclick="quickLogin('agent@globalconnect.io', 'Password123!')" style="flex: 1; padding: 8px 4px; font-size: 0.72rem; font-weight: 700; border: 1px solid #dbe1d8; border-radius: 4px; background: #fff; cursor: pointer; color: var(--green);">🛡️ Agent (Sarah)</button>
+        <button type="button" onclick="quickLoginRole('buyer')" style="flex: 1; padding: 8px 4px; font-size: 0.72rem; font-weight: 700; border: 1px solid #dbe1d8; border-radius: 4px; background: #fff; cursor: pointer; color: var(--green);">👤 Buyer (Tariq)</button>
+        <button type="button" onclick="quickLoginRole('seller')" style="flex: 1; padding: 8px 4px; font-size: 0.72rem; font-weight: 700; border: 1px solid #dbe1d8; border-radius: 4px; background: #fff; cursor: pointer; color: var(--green);">🏷️ Seller (Marco)</button>
+        <button type="button" onclick="quickLoginRole('agent')" style="flex: 1; padding: 8px 4px; font-size: 0.72rem; font-weight: 700; border: 1px solid #dbe1d8; border-radius: 4px; background: #fff; cursor: pointer; color: var(--green);">🛡️ Agent (Sarah)</button>
       </div>
     </div>
-    <div class="prototype-note"><strong>Prototype account:</strong> Accounts are stored in memory for this demo and reset when the server restarts. Pre-seeded demo credentials (Password123!) are ready for immediate evaluation.</div>
+    <div class="prototype-note"><strong>Prototype account:</strong> Accounts are stored in memory for this demo and reset when the server restarts. Pre-seeded demo credentials are secure and loaded from environment variables.</div>
     <div class="terms">By continuing, you’ll enter the GlobalConnect demo workspace.</div>
   </section></main>
   <script>

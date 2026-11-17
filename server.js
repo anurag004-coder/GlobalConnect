@@ -789,9 +789,9 @@ async function verifyPassword(password, salt, expectedHash) {
 // Seed default demonstration personas so auth.html works instantly out of the box
 async function seedDefaultAuthAccounts() {
     const defaultAccounts = [
-        { id: 'buyer_dubai_12', email: 'buyer@globalconnect.io', password: 'Password123!', role: 'buyer', name: 'Tariq Al-Mansoor', lang: 'ar', trustScore: 98 },
-        { id: 'seller_milan_88', email: 'seller@globalconnect.io', password: 'Password123!', role: 'seller', name: 'Marco Rossi', lang: 'en', trustScore: 99 },
-        { id: 'agent_support_01', email: 'agent@globalconnect.io', password: 'Password123!', role: 'agent', name: 'Sarah Chen', lang: 'en', trustScore: 100 }
+        { id: 'buyer_dubai_12', email: 'buyer@globalconnect.io', password: process.env.DEMO_BUYER_PASSWORD || crypto.randomBytes(16).toString('hex'), role: 'buyer', name: 'Tariq Al-Mansoor', lang: 'ar', trustScore: 98 },
+        { id: 'seller_milan_88', email: 'seller@globalconnect.io', password: process.env.DEMO_SELLER_PASSWORD || crypto.randomBytes(16).toString('hex'), role: 'seller', name: 'Marco Rossi', lang: 'en', trustScore: 99 },
+        { id: 'agent_support_01', email: 'agent@globalconnect.io', password: process.env.DEMO_AGENT_PASSWORD || crypto.randomBytes(16).toString('hex'), role: 'agent', name: 'Sarah Chen', lang: 'en', trustScore: 100 }
     ];
 
     for (const acc of defaultAccounts) {
@@ -870,6 +870,18 @@ const server = http.createServer(async (req, res) => {
             authUsersByEmail.set(email, id);
             const safeUser = createSession(req, res, user);
             return sendJson(res, 201, { success: true, user: safeUser, prototype: true });
+        }
+
+        // 1-Click Demo Persona Login (Zero credentials exposed client-side)
+        if (req.method === 'POST' && pathname === '/api/auth/demo-login') {
+            const body = await parseJsonBody(req);
+            const targetRole = String(body.role || 'buyer').trim().toLowerCase();
+            const user = Object.values(db.users).find(u => u.role === targetRole);
+            if (!user) {
+                return sendJson(res, 404, { error: `No demonstration persona found for role '${targetRole}'.` });
+            }
+            const safeUser = createSession(req, res, user);
+            return sendJson(res, 200, { success: true, user: safeUser, prototype: true });
         }
 
         if (req.method === 'POST' && pathname === '/api/auth/login') {
