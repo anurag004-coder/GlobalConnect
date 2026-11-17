@@ -1946,6 +1946,8 @@
         
         async function quickSwitchPersona(role) {
             try {
+                const label = document.getElementById('signedInUser');
+                if (label) label.textContent = 'Switching persona…';
                 const res = await fetch('/api/auth/demo-login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -1956,24 +1958,13 @@
                     window.location.reload();
                 } else {
                     alert('Persona switch failed.');
+                    if (label && currentUser) {
+                        label.textContent = `${currentUser.name} · ${currentUser.role.charAt(0).toUpperCase()}${currentUser.role.slice(1)}`;
+                    }
                 }
             } catch (err) {
                 console.error('Failed to switch persona:', err);
-            }
-        });
-                const res = await fetch('/api/auth/login', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    credentials: 'same-origin',
-                    body: JSON.stringify({ email, password })
-                });
-                if (res.ok) {
-                    window.location.reload();
-                } else {
-                    alert('Persona switch failed.');
-                }
-            } catch (err) {
-                console.error('Failed to switch persona:', err);
+                alert('Error switching persona: ' + err.message);
             }
         }
 
